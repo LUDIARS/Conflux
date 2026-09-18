@@ -39,7 +39,7 @@ export function revisionsSection(d: VariantDetail): string {
 
 function artifactLinks(artifacts: readonly Artifact[]): string {
   return artifacts
-    .map((a) => `<a href="${esc(a.uri)}" rel="noopener">${esc(a.platform)} (${a.delivery === 'download' ? 'DL' : 'デプロイ可'})</a> <span class="muted">${esc(a.id)}</span>`)
+    .map((a) => `<a class="button-link" href="${esc(a.uri)}" rel="noopener">${esc(a.platform)} (${a.delivery === 'download' ? 'DL' : 'デプロイ可'})</a> <span class="muted">${esc(a.id)}</span>`)
     .join('<br>');
 }
 

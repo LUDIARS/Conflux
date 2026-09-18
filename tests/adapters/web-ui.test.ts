@@ -128,6 +128,8 @@ describe('web project page (CF-WEB-001)', () => {
     const results = await app.handle(get(`/projects/KD?variant=${s.variant.id}&tab=results`));
     assert.match(results.body, /デプロイ \(管理職以上\)/);
     assert.match(results.body, /この画面では権限を判定しません/);
+    // Playable artifact links are primary actions, so they get the 44px tap target.
+    assert.match(results.body, /<a class="button-link" href="https:\/\/builds\.example\/[^"]+\.zip" rel="noopener">windows \(DL\)<\/a>/);
   });
 
   it('handles long names and many nodes without dropping text', async () => {
@@ -155,7 +157,8 @@ describe('web project page (CF-WEB-001)', () => {
     assert.equal(empty.status, 200);
     assert.match(empty.body, /まだ潮流がありません/);
     assert.match(empty.body, /<details class="panel" open>/);
-    assert.doesNotMatch(empty.body, /data-graph-viewport/);
+    // The inline client script always names the selector, so match the element itself.
+    assert.doesNotMatch(empty.body, /class="graph-viewport"/);
     const unknown = await app.handle(get('/projects/KD?variant=missing&view=detail'));
     assert.match(unknown.body, /選択された亜流はこのプロジェクトにありません/);
   });
