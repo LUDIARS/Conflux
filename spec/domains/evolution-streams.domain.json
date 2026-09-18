@@ -1,0 +1,18 @@
+{
+  "name": "evolution-streams",
+  "description": "進化の流れ (core): 潮流・亜流・本流・分岐/合流関係・コンセプト・ルール変更の意味を所有する。Git ブランチの物理操作や PR 審査は所有しない。グラフはこの状態の投影。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    { "pathPattern": "(^|/)src/evolution-streams/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)tests/evolution-streams/(?:.*/)?[^/]+$" },
+    { "pathPattern": "^spec/feature/evolution-streams\\.md$" },
+    { "pathPattern": "^spec/domains/evolution-streams\\.domain\\.json$" }
+  ],
+  "cardTemplate": "Summarise the \"evolution-streams\" domain: tides, variants, mainlines, branch/merge relations, concepts and rule changes; the graph is a projection of this state.",
+  "specRefs": [
+    "spec/ux/product.md",
+    "spec/architecture/overview.md",
+    "spec/feature/evolution-streams.md"
+  ]
+}

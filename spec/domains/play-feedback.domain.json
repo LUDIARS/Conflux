@@ -1,0 +1,17 @@
+{
+  "name": "play-feedback",
+  "description": "遊びの対話と評価 (core): コメント・返信・潮流評価・プレイした版の参照を所有する。ゲーム内デバッグ投稿と Cf 上の投稿は同じモデルに合流する。意見から自動で正式採用しない。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    { "pathPattern": "(^|/)src/play-feedback/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)tests/play-feedback/(?:.*/)?[^/]+$" },
+    { "pathPattern": "^spec/feature/play-feedback\\.md$" },
+    { "pathPattern": "^spec/domains/play-feedback\\.domain\\.json$" }
+  ],
+  "cardTemplate": "Summarise the \"play-feedback\" domain: comments, replies, AI summaries kept apart from human originals, and ratings bound to the build that was actually played.",
+  "specRefs": [
+    "spec/ux/product.md",
+    "spec/feature/play-feedback.md"
+  ]
+}

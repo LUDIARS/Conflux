@@ -1,0 +1,18 @@
+{
+  "name": "implementation-requests",
+  "description": "改善案の作業化 (business): Cf の作業依頼と Cc セッション参照、依頼同一性・結果不明の照合を所有する。セッション起動と宛先所属/配送は Cc に委譲する。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    { "pathPattern": "(^|/)src/implementation-requests/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)tests/implementation-requests/(?:.*/)?[^/]+$" },
+    { "pathPattern": "^spec/feature/implementation-requests\\.md$" },
+    { "pathPattern": "^spec/domains/implementation-requests\\.domain\\.json$" }
+  ],
+  "cardTemplate": "Summarise the \"implementation-requests\" domain: Cf work requests spawned into Cc sessions at preconfigured destinations, their identity and unknown-outcome reconciliation.",
+  "specRefs": [
+    "spec/ux/product.md",
+    "spec/feature/implementation-requests.md",
+    "spec/architecture/cc-integration.md"
+  ]
+}

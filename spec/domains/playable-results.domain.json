@@ -1,0 +1,18 @@
+{
+  "name": "playable-results",
+  "description": "試遊成果物と配布 (business): 潮流/亜流/コミットとビルド・成果物の対応、配布履歴を所有する。自動ビルドは Cc フック管理、デプロイは管理職以上に限定し API でも検証する。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    { "pathPattern": "(^|/)src/playable-results/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)tests/playable-results/(?:.*/)?[^/]+$" },
+    { "pathPattern": "^spec/feature/playable-results\\.md$" },
+    { "pathPattern": "^spec/domains/playable-results\\.domain\\.json$" }
+  ],
+  "cardTemplate": "Summarise the \"playable-results\" domain: builds driven by Cc hooks, artifacts per tide/variant/commit, download reachability and manager-only deploy history.",
+  "specRefs": [
+    "spec/ux/product.md",
+    "spec/feature/playable-results.md",
+    "spec/architecture/cc-integration.md"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "adoption-decisions",
+  "description": "正式ルールへの合流判断 (core): 合流候補・採用対象の版・判断理由・正式ルールの参照を所有する。人間の採用判断とコード統合完了を別状態で持ち、統合完了は Cc/Rv/GitHub からの報告でのみ進める。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    { "pathPattern": "(^|/)src/adoption-decisions/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)tests/adoption-decisions/(?:.*/)?[^/]+$" },
+    { "pathPattern": "^spec/feature/adoption-decisions\\.md$" },
+    { "pathPattern": "^spec/domains/adoption-decisions\\.domain\\.json$" }
+  ],
+  "cardTemplate": "Summarise the \"adoption-decisions\" domain: human adopt/decline decisions for a tide's variant and version, with reasons, kept separate from code-integration facts reported by Cc/Rv/GitHub.",
+  "specRefs": [
+    "spec/ux/product.md",
+    "spec/feature/adoption-decisions.md"
+  ]
+}

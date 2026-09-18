@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "contractsDir": "contracts",
+  "importFrom": "@ludiars/log-weaver",
+  "contracts": [
+    { "id": "C-1", "criterion": "C-1 planVariant(tides, variants, draft): 同じ潮流に同じ識別名の亜流があれば作成を拒否し、同一プロジェクト内の複数潮流・亜流を区別する (CF-FLOW-001)", "symbol": "planVariant", "file": "src/evolution-streams/domain/flow-rules.ts", "module": "./contracts/plan-variant.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-2", "criterion": "C-2 applyRuleChanges(rules, changes): 変更前の内容が亜流の現在ルールと一致しない変更を拒否し、別亜流の変更履歴を上書きしない (CF-FLOW-001)", "symbol": "applyRuleChanges", "file": "src/evolution-streams/domain/flow-rules.ts", "module": "./contracts/apply-rule-changes.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-3", "criterion": "C-3 projectFlowGraph(input): グラフは分岐元 (branched) と合流先 (merged) の辺を失わない (CF-GRAPH-001)", "symbol": "projectFlowGraph", "file": "src/evolution-streams/domain/flow-graph.ts", "module": "./contracts/project-flow-graph.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-4", "criterion": "C-4 planComment(ctx, draft): AI による整理は元コメントを参照し source=ai で記録され、人間の原文と区別される (CF-COMMENT-001)", "symbol": "planComment", "file": "src/play-feedback/domain/comment-rules.ts", "module": "./contracts/plan-comment.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-5", "criterion": "C-5 admitDebugPost(input): Cf Flow 未有効のゲームからのデバッグ投稿を拒否し、受理した投稿はプレイしたビルドとコミットに束縛する (CF-DEBUG-001)", "symbol": "admitDebugPost", "file": "src/play-feedback/domain/debug-intake.ts", "module": "./contracts/admit-debug-post.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-6", "criterion": "C-6 summarizeRatings(ratings, currentBuildId): 過去ビルドへの評価を最新対象版の評価として表示しない (CF-DEBUG-001)", "symbol": "summarizeRatings", "file": "src/play-feedback/domain/rating-rules.ts", "module": "./contracts/summarize-ratings.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-7", "criterion": "C-7 planDecision(ctx, draft): 採用は対象版の試遊可能な成果物がある場合だけ記録し、採用/見送りとも理由を残す (CF-MERGE-001)", "symbol": "planDecision", "file": "src/adoption-decisions/domain/decision-rules.ts", "module": "./contracts/plan-decision.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-8", "criterion": "C-8 applyIntegrationReport(decision, report): 採用済みかつ同じコミットの統合報告なしに統合済みと表示しない (CF-MERGE-001)", "symbol": "applyIntegrationReport", "file": "src/adoption-decisions/domain/decision-rules.ts", "module": "./contracts/apply-integration-report.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-9", "criterion": "C-9 planWorkspace(existing, input): Cf 設定の変更は Cc 所有の Cf Flow 観測を変えず、新規プロジェクトを有効化済みとして作らない (CF-PROJECT-001)", "symbol": "planWorkspace", "file": "src/project-workspaces/domain/workspace-rules.ts", "module": "./contracts/plan-workspace.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-10", "criterion": "C-10 nextSpawnAction(request): 起動結果不明または送信中の依頼を照合なしに再送しない (CF-SPAWN-001)", "symbol": "nextSpawnAction", "file": "src/implementation-requests/domain/request-rules.ts", "module": "./contracts/next-spawn-action.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-11", "criterion": "C-11 variantResultStatus(input): 試遊可能・最新対象版の表示は対象コミットのビルドだけに付け、失敗時に過去成果物を最新成功として表示しない (CF-ARTIFACT-001)", "symbol": "variantResultStatus", "file": "src/playable-results/domain/result-status.ts", "module": "./contracts/variant-result-status.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-12", "criterion": "C-12 planFlowBuild(existing, settings, target, origin): 同じビルド依頼の重複フックは既存記録を返し、無制限に再起動しない (CF-BUILD-001)", "symbol": "planFlowBuild", "file": "src/playable-results/domain/build-requests.ts", "module": "./contracts/plan-flow-build.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-13", "criterion": "C-13 authorizeDeploy(input): Cc が確認した管理職以上かつ設定済み環境の場合だけデプロイを許可する (CF-DEPLOY-001)", "symbol": "authorizeDeploy", "file": "src/playable-results/domain/deploy-authorization.ts", "module": "./contracts/authorize-deploy.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-14", "criterion": "C-14 assessCheckout(policy, selection, checkout): 未コミット変更がある作業ツリーは別の流れへ切り替え可能と判定しない (CF-HARNESS-001)", "symbol": "assessCheckout", "file": "src/flow-isolation/domain/selection.ts", "module": "./contracts/assess-checkout.contract.ts", "mode": "observe", "sample": 1 }
+  ]
+}

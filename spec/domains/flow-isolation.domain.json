@@ -1,0 +1,18 @@
+{
+  "name": "flow-isolation",
+  "description": "流れごとの作業分離 (business): Cf で選択した project/潮流/亜流と Cc 作業ブランチの整合条件を所有する。通常フローの main 起点/PR 後二重チェックは Cc の共通基盤であり Cf から解除しない。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    { "pathPattern": "(^|/)src/flow-isolation/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)tests/flow-isolation/(?:.*/)?[^/]+$" },
+    { "pathPattern": "^spec/feature/flow-isolation\\.md$" },
+    { "pathPattern": "^spec/domains/flow-isolation\\.domain\\.json$" }
+  ],
+  "cardTemplate": "Summarise the \"flow-isolation\" domain: the project/tide/variant selection and the base/work branch pair handed to the Cc harness, plus the branch-mismatch classification shown to users.",
+  "specRefs": [
+    "spec/ux/product.md",
+    "spec/feature/flow-isolation.md",
+    "spec/architecture/cc-integration.md"
+  ]
+}
