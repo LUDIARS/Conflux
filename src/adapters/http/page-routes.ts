@@ -13,7 +13,9 @@ import { describeFlowObservation } from '../../project-workspaces/domain/workspa
 import type { Result } from '../../shared/result.ts';
 import type { AppDeps } from './app-deps.ts';
 import { errorBanner, page } from './html/layout.ts';
-import { renderProjectIndex, renderProjectPage } from './html/project-page.ts';
+import { renderProjectIndex } from './html/project-index.ts';
+import { renderProjectPage } from './html/project-page.ts';
+import { parseProjectView, returnHref, type DetailTabId } from './html/view-state.ts';
 import type { HttpResponse } from './http-types.ts';
 import { formValue, parseRuleLines, readForm } from './request-parsing.ts';
 import { htmlResponse, redirect, statusOf } from './responses.ts';
@@ -38,13 +40,12 @@ function parseChangeLines(text: string): RuleChange[] {
     });
 }
 
-/** Post/Redirect/Get: success returns to the variant view, failure shows the reason on it. */
-function back(code: string, variantId: string | undefined, result: Result<unknown>): HttpResponse {
-  const params = new URLSearchParams();
-  if (variantId) params.set('variant', variantId);
-  if (!result.ok) params.set('error', result.error.message);
-  const qs = params.toString();
-  return redirect(`/projects/${encodeURIComponent(code)}${qs ? `?${qs}` : ''}`);
+/**
+ * Post/Redirect/Get: returns to the same variant, on the detail tab of the operation just done
+ * (narrow screens land on the detail pane); failure shows the reason there.
+ */
+function back(code: string, variantId: string | undefined, result: Result<unknown>, tab: DetailTabId = 'concept'): HttpResponse {
+  return redirect(returnHref(code, variantId, tab, result.ok ? undefined : result.error.message));
 }
 
 export function registerPageRoutes(router: Router, deps: AppDeps): void {
@@ -54,13 +55,15 @@ export function registerPageRoutes(router: Router, deps: AppDeps): void {
   });
 
   router.add('GET', '/projects/:code', async (req, p) => {
-    const variantId = req.query.get('variant') ?? undefined;
-    const overview = await loadProjectOverview(deps, p.code as string, variantId);
-    if (!overview.ok) return htmlResponse(statusOf(overview.error), page('Conflux', `<main>${errorBanner(overview.error.message)}<a href="/">プロジェクト一覧へ</a></main>`));
-    const compareId = req.query.get('compare');
-    const other = compareId ? overview.value.variants.find((v) => v.id === compareId) : undefined;
+    const state = parseProjectView(req.query);
+    const overview = await loadProjectOverview(deps, p.code as string, state.variantId);
+    if (!overview.ok) {
+      const body = `<main id="main" class="index">${errorBanner(overview.error.message)}<p><a class="button-link" href="/">プロジェクト一覧へ</a></p></main>`;
+      return htmlResponse(statusOf(overview.error), page('Conflux', body));
+    }
+    const other = state.compareId ? overview.value.variants.find((v) => v.id === state.compareId) : undefined;
     const comparison = overview.value.selected && other ? compareVariants(overview.value.selected.variant, other) : undefined;
-    return htmlResponse(200, renderProjectPage(overview.value, comparison, req.query.get('error')));
+    return htmlResponse(200, renderProjectPage(overview.value, state, comparison, req.query.get('error')));
   });
 
   router.add('POST', '/projects/:code/flow-status/refresh', async (_req, p) => back(p.code as string, undefined, await refreshFlowObservation(deps, p.code as string)));
@@ -102,7 +105,7 @@ export function registerPageRoutes(router: Router, deps: AppDeps): void {
       gitRef: { branch: formValue(f, 'branch'), ...(commit ? { commit } : {}) },
     });
     if (result.ok) await onRevisionRecorded(deps, result.value);
-    return back(code, variantId, result);
+    return back(code, variantId, result, 'rules');
   });
 
   router.add('POST', '/projects/:code/variants/:variantId/comments', async (req, p) => {
@@ -123,6 +126,7 @@ export function registerPageRoutes(router: Router, deps: AppDeps): void {
         ...(parentId ? { parentId } : {}),
         ...(playedBuildId ? { playedBuildId } : {}),
       }),
+      'talk',
     );
   });
 
@@ -132,7 +136,7 @@ export function registerPageRoutes(router: Router, deps: AppDeps): void {
     const variantId = p.variantId as string;
     const scores: Record<string, number> = {};
     for (const [key, value] of f) if (key.startsWith('score.')) scores[key.slice('score.'.length)] = Number(value);
-    return back(code, variantId, await rateVariant(deps, { projectCode: code, variantId, playedBuildId: formValue(f, 'playedBuildId'), rater: formValue(f, 'rater'), scores }));
+    return back(code, variantId, await rateVariant(deps, { projectCode: code, variantId, playedBuildId: formValue(f, 'playedBuildId'), rater: formValue(f, 'rater'), scores }), 'talk');
   });
 
   router.add('POST', '/projects/:code/requests', async (req, p) => {
@@ -152,6 +156,7 @@ export function registerPageRoutes(router: Router, deps: AppDeps): void {
         sourceCommentIds: csv(formValue(f, 'sourceCommentIds')),
         requestedBy: formValue(f, 'requestedBy'),
       }),
+      'work',
     );
   });
 
@@ -159,13 +164,13 @@ export function registerPageRoutes(router: Router, deps: AppDeps): void {
     const f = readForm(req);
     const code = p.code as string;
     const result = await reconcileRequest(deps, { projectCode: code, requestId: p.requestId as string, resendIfAbsent: f.get('resendIfAbsent') === '1' });
-    return back(code, result.ok ? result.value.variantId : undefined, result);
+    return back(code, result.ok ? result.value.variantId : undefined, result, 'work');
   });
 
   router.add('POST', '/projects/:code/builds/:buildId/retry', async (_req, p) => {
     const code = p.code as string;
     const result = await retryBuild(deps, { projectCode: code, buildId: p.buildId as string });
-    return back(code, result.ok ? result.value.variantId : undefined, result);
+    return back(code, result.ok ? result.value.variantId : undefined, result, 'results');
   });
 
   router.add('POST', '/projects/:code/deployments', async (req, p) => {
@@ -183,7 +188,7 @@ export function registerPageRoutes(router: Router, deps: AppDeps): void {
       },
       token || undefined,
     );
-    return back(code, result.ok ? result.value.variantId : undefined, result);
+    return back(code, result.ok ? result.value.variantId : undefined, result, 'results');
   });
 
   router.add('POST', '/projects/:code/decisions', async (req, p) => {
@@ -204,6 +209,7 @@ export function registerPageRoutes(router: Router, deps: AppDeps): void {
         relatedCommentIds: csv(formValue(f, 'relatedCommentIds')),
         ...(commit ? { commit } : {}),
       }),
+      'decision',
     );
   });
 }

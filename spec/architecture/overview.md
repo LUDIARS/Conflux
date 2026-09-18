@@ -22,6 +22,15 @@ src/main.ts (composition root)
 src/shared (Result, Clock, IdGenerator, 状態ドキュメント型)
 ```
 
+## 表示 adapter (Web / Tela)
+
+Web UI (`src/adapters/http/html/**`) と後続の Tela オーバーレイ UI は、同じ application の use case と
+読み取りモデル (`loadProjectOverview` 等) を呼ぶ表示・入力 adapter として並べる。
+画面状態 (選択 id・表示面・タブ・拡大率) は各 adapter の関心で、Web は URL だけに持つ。
+業務ルール・履歴・権限判定は adapter に置かない (権限は use case が Cc 応答で判定)。
+Tela adapter は Tela ホストの接続方式が決まってから `src/adapters/tela/**` (platform-foundation 所属) として追加する。
+仕様: `spec/feature/web-ui.md` (CF-WEB-001)。
+
 下層 (domain) は上層 (application / adapters) を import しない。ドメイン間参照は domain 型の
 読み取りのみ許し、状態変更は各ドメインの use case を経由する。
 
@@ -36,7 +45,7 @@ src/shared (Result, Clock, IdGenerator, 状態ドキュメント型)
 | implementation-requests | `src/implementation-requests/**` | `tests/implementation-requests/**` | CF-SPAWN-001 |
 | playable-results | `src/playable-results/**` | `tests/playable-results/**` | CF-ARTIFACT-001, CF-BUILD-001, CF-DEPLOY-001 |
 | flow-isolation | `src/flow-isolation/**` | `tests/flow-isolation/**` | CF-HARNESS-001 (Cf 側の選択と照合のみ) |
-| platform-foundation | `src/shared/*`, `src/adapters/**`, `src/main.ts`, `contracts/*` | `tests/shared/*`, `tests/adapters/**`, `tests/support/*` | CF-DESIGN-001 |
+| platform-foundation | `src/shared/*`, `src/adapters/**`, `src/main.ts`, `contracts/*` | `tests/shared/*`, `tests/adapters/**`, `tests/support/*` | CF-DESIGN-001, CF-WEB-001 |
 
 正本の membership は `spec/domains/<domain>.domain.json`。
 

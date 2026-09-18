@@ -77,7 +77,7 @@
 - `src/flow-isolation/ports.ts`
 - `tests/flow-isolation/selection.test.ts`
 
-## platform-foundation (CF-DESIGN-001 (基盤・配信面・Cc adapter))
+## platform-foundation (CF-DESIGN-001 (基盤・配信面・Cc adapter) / CF-WEB-001 (Web UI))
 
 - `contracts/admit-debug-post.contract.ts`
 - `contracts/apply-integration-report.contract.ts`
@@ -92,6 +92,7 @@
 - `contracts/plan-variant.contract.ts`
 - `contracts/plan-workspace.contract.ts`
 - `contracts/project-flow-graph.contract.ts`
+- `contracts/project-view-href.contract.ts`
 - `contracts/summarize-ratings.contract.ts`
 - `contracts/variant-result-status.contract.ts`
 - `src/adapters/cc/cc-build-trigger-gateway.ts`
@@ -113,13 +114,28 @@
 - `src/adapters/http/api/workspace-api.ts`
 - `src/adapters/http/app-deps.ts`
 - `src/adapters/http/create-app.ts`
+- `src/adapters/http/html/client-script.ts`
+- `src/adapters/http/html/detail-pane.ts`
+- `src/adapters/http/html/detail-tabs.ts`
 - `src/adapters/http/html/escape.ts`
+- `src/adapters/http/html/flow-forms.ts`
+- `src/adapters/http/html/flow-list.ts`
+- `src/adapters/http/html/form-controls.ts`
+- `src/adapters/http/html/graph-pane.ts`
 - `src/adapters/http/html/graph-svg.ts`
+- `src/adapters/http/html/graph-viewport.ts`
+- `src/adapters/http/html/graph-zoom.ts`
 - `src/adapters/http/html/layout.ts`
+- `src/adapters/http/html/project-header.ts`
+- `src/adapters/http/html/project-index.ts`
 - `src/adapters/http/html/project-page.ts`
+- `src/adapters/http/html/styles.ts`
+- `src/adapters/http/html/svg-label.ts`
 - `src/adapters/http/html/variant-forms.ts`
 - `src/adapters/http/html/variant-sections.ts`
+- `src/adapters/http/html/view-state.ts`
 - `src/adapters/http/http-types.ts`
+- `src/adapters/http/html/tab-panels.ts`
 - `src/adapters/http/node-server.ts`
 - `src/adapters/http/page-routes.ts`
 - `src/adapters/http/request-parsing.ts`
@@ -135,6 +151,7 @@
 - `tests/adapters/cc-gateways.test.ts`
 - `tests/adapters/http-app.test.ts`
 - `tests/adapters/storage-and-config.test.ts`
+- `tests/adapters/web-ui.test.ts`
 - `tests/shared/contracts.test.ts`
 - `tests/support/fixtures.ts`
 - `tests/support/seed.ts`

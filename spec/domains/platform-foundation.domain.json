@@ -1,6 +1,6 @@
 {
   "name": "platform-foundation",
-  "description": "基盤 (platform): 共有カーネル (Result/時刻/ID)、状態保存・Cc HTTP・デプロイの adapter、HTTP/HTML 配信面、設定読込と composition root。業務判断は持たない。",
+  "description": "基盤 (platform): 共有カーネル (Result/時刻/ID)、状態保存・Cc HTTP・デプロイの adapter、HTTP/HTML 配信面 (Web UI の表示・入力 adapter)、設定読込と composition root。業務判断は持たない。",
   "presetRules": [],
   "templateRules": [],
   "membership": [
@@ -12,12 +12,15 @@
     { "pathPattern": "(^|/)tests/support/[^/]+$" },
     { "pathPattern": "(^|/)contracts/[^/]+$" },
     { "pathPattern": "^spec/(ux|architecture|tasks)/[^/]+$" },
+    { "pathPattern": "^spec/feature/web-ui\\.md$" },
     { "pathPattern": "^spec/domains/platform-foundation\\.domain\\.json$" },
     { "pathPattern": "^(package\\.json|tsconfig\\.json|\\.gitignore|\\.gitattributes|README\\.md|augur\\.contracts\\.json|cc\\.acceptance\\.json)$" }
   ],
   "cardTemplate": "Summarise the \"platform-foundation\" domain: shared kernel, storage/Cc/deploy adapters, HTTP+HTML delivery surface and composition root. No business decisions live here.",
   "specRefs": [
+    "spec/ux/product.md",
     "spec/architecture/overview.md",
-    "spec/architecture/cc-integration.md"
+    "spec/architecture/cc-integration.md",
+    "spec/feature/web-ui.md"
   ]
 }

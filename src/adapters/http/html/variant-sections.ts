@@ -10,10 +10,10 @@ import { esc } from './escape.ts';
 
 export function conceptSection(d: VariantDetail): string {
   const rules = d.variant.rules.map((r) => `<tr><td>${esc(r.key)}</td><td>${esc(r.text)}</td></tr>`).join('');
-  return `<section><h2>${esc(d.tide.title)} / ${esc(d.variant.title)}</h2>
+  return `<section><h3>コンセプト</h3>
 <p><span class="badge">潮流</span> ${esc(d.tide.concept)}</p>
 <p><span class="badge">亜流</span> ${esc(d.variant.concept)}</p>
-<h3>現在のルール</h3><table><tr><th>ルール</th><th>内容</th></tr>${rules || '<tr><td colspan="2" class="muted">未登録</td></tr>'}</table></section>`;
+<h4>現在のルール</h4><div class="table-scroll"><table><tr><th>ルール</th><th>内容</th></tr>${rules || '<tr><td colspan="2" class="muted">未登録</td></tr>'}</table></div></section>`;
 }
 
 export function comparisonSection(c: VariantComparison | undefined): string {
@@ -21,9 +21,9 @@ export function comparisonSection(c: VariantComparison | undefined): string {
   const rows = c.rules
     .map((r) => `<tr class="${r.state === 'same' ? 'muted' : ''}"><td>${esc(r.key)}</td><td>${esc(r.left)}</td><td>${esc(r.right)}</td><td>${esc(r.state)}</td></tr>`)
     .join('');
-  return `<section><h2>ルール差分: ${esc(c.left.title)} ⇔ ${esc(c.right.title)}</h2>
+  return `<section><h3>ルール差分: ${esc(c.left.title)} ⇔ ${esc(c.right.title)}</h3>
 <p>${esc(c.left.concept)}<br>⇔ ${esc(c.right.concept)}</p>
-<table><tr><th>ルール</th><th>${esc(c.left.title)}</th><th>${esc(c.right.title)}</th><th>差</th></tr>${rows}</table></section>`;
+<div class="table-scroll"><table><tr><th>ルール</th><th>${esc(c.left.title)}</th><th>${esc(c.right.title)}</th><th>差</th></tr>${rows}</table></div></section>`;
 }
 
 export function revisionsSection(d: VariantDetail): string {
@@ -34,7 +34,7 @@ export function revisionsSection(d: VariantDetail): string {
       return `<tr><td>${esc(r.createdAt)}</td><td>${esc(r.intent)}<br><span class="muted">${esc(r.summary)}</span></td><td>${changes}</td><td>${esc(r.gitRef.branch)}<br>${esc(r.gitRef.commit ?? '')}</td></tr>`;
     })
     .join('');
-  return `<section><h2>改修履歴</h2><table><tr><th>日時</th><th>意図</th><th>ルール変更</th><th>Git</th></tr>${rows || '<tr><td colspan="4" class="muted">なし</td></tr>'}</table></section>`;
+  return `<section><h3>改修履歴</h3><div class="table-scroll"><table><tr><th>日時</th><th>意図</th><th>ルール変更</th><th>Git</th></tr>${rows || '<tr><td colspan="4" class="muted">なし</td></tr>'}</table></div></section>`;
 }
 
 function artifactLinks(artifacts: readonly Artifact[]): string {
@@ -55,7 +55,7 @@ export function resultsSection(d: VariantDetail, projectCode: string): string {
     .map((b) => {
       const retry =
         b.state === 'failed' || b.state === 'not_connected'
-          ? `<form method="post" action="/projects/${esc(projectCode)}/builds/${esc(b.id)}/retry"><button>失敗内容を確認して再実行</button></form>`
+          ? `<form method="post" action="/projects/${esc(projectCode)}/builds/${esc(b.id)}/retry"><button type="submit">失敗内容を確認して再実行</button></form>`
           : '';
       const log = b.logUri ? `<a href="${esc(b.logUri)}" rel="noopener">ログ</a>` : '';
       return `<tr><td>${esc(b.commit)}</td><td>${esc(b.origin)}</td><td>${esc(b.state)}</td><td>${esc(b.failureSummary ?? '')} ${log}</td><td>${retry}</td></tr>`;
@@ -65,11 +65,11 @@ export function resultsSection(d: VariantDetail, projectCode: string): string {
     .reverse()
     .map((x) => `<tr><td>${esc(x.requestedAt)}</td><td>${esc(x.environment)}</td><td>${esc(x.artifactId)}</td><td>${esc(x.actorId)}</td><td>${esc(x.state)} ${esc(x.detail ?? '')}</td></tr>`)
     .join('');
-  return `<section><h2>試遊成果物</h2>
+  return `<section><h3>試遊成果物</h3>
 <p>対象版: ${esc(r.targetCommit ?? '—')} — <strong class="${stateClass}">${esc(describeTargetState(r.target))}</strong></p>
 ${r.targetArtifacts.length > 0 ? `<p>${artifactLinks(r.targetArtifacts)}</p>` : ''}${past}
-<h3>ビルド (Cc フック管理)</h3><table><tr><th>コミット</th><th>契機</th><th>状態</th><th>詳細</th><th></th></tr>${builds || '<tr><td colspan="5" class="muted">なし</td></tr>'}</table>
-<h3>デプロイ履歴</h3><table><tr><th>日時</th><th>環境</th><th>成果物</th><th>実行者</th><th>結果</th></tr>${deployments || '<tr><td colspan="5" class="muted">なし</td></tr>'}</table></section>`;
+<h4>ビルド (Cc フック管理)</h4><div class="table-scroll"><table><tr><th>コミット</th><th>契機</th><th>状態</th><th>詳細</th><th></th></tr>${builds || '<tr><td colspan="5" class="muted">なし</td></tr>'}</table></div>
+<h4>デプロイ履歴</h4><div class="table-scroll"><table><tr><th>日時</th><th>環境</th><th>成果物</th><th>実行者</th><th>結果</th></tr>${deployments || '<tr><td colspan="5" class="muted">なし</td></tr>'}</table></div></section>`;
 }
 
 export function ratingsSection(d: VariantDetail): string {
@@ -79,7 +79,7 @@ export function ratingsSection(d: VariantDetail): string {
       return `<tr><td>${esc(s.commit)} ${s.isCurrent ? '<span class="badge">最新対象版</span>' : '<span class="badge">過去の版</span>'}</td><td>${s.count}</td><td>${avg}</td></tr>`;
     })
     .join('');
-  return `<section><h2>潮流評価 (プレイした版ごと)</h2><table><tr><th>版</th><th>件数</th><th>平均</th></tr>${rows || '<tr><td colspan="3" class="muted">なし</td></tr>'}</table></section>`;
+  return `<section><h3>潮流評価 (プレイした版ごと)</h3><div class="table-scroll"><table><tr><th>版</th><th>件数</th><th>平均</th></tr>${rows || '<tr><td colspan="3" class="muted">なし</td></tr>'}</table></div></section>`;
 }
 
 function threadHtml(t: CommentThread): string {
@@ -98,8 +98,8 @@ export function commentsSection(d: VariantDetail): string {
         `<tr><td>${esc(t.commentId)}</td><td>${esc(t.summarizedBy.join(', '))}</td><td>${t.requests.map((r) => esc(`${r.title} (${r.state})`)).join('<br>')}</td><td>${t.decisions.map((x) => esc(`${x.verdict}: ${x.reason}`)).join('<br>')}</td></tr>`,
     )
     .join('');
-  return `<section><h2>コメント</h2>${d.threads.map(threadHtml).join('') || '<p class="muted">まだありません</p>'}
-<h3>意見の行き先</h3><table><tr><th>元コメント</th><th>AI 整理</th><th>作業依頼</th><th>採否</th></tr>${traces || '<tr><td colspan="4" class="muted">なし</td></tr>'}</table></section>`;
+  return `<section><h3>コメント</h3>${d.threads.map(threadHtml).join('') || '<p class="muted">まだありません</p>'}
+<h4>意見の行き先</h4><div class="table-scroll"><table><tr><th>元コメント</th><th>AI 整理</th><th>作業依頼</th><th>採否</th></tr>${traces || '<tr><td colspan="4" class="muted">なし</td></tr>'}</table></div></section>`;
 }
 
 export function workSection(d: VariantDetail, projectCode: string): string {
@@ -108,7 +108,7 @@ export function workSection(d: VariantDetail, projectCode: string): string {
     .map((r) => {
       const reconcile =
         r.state === 'unknown' || r.state === 'requested' || r.state === 'not_sent'
-          ? `<form method="post" action="/projects/${esc(projectCode)}/requests/${esc(r.id)}/reconcile"><label><input type="checkbox" name="resendIfAbsent" value="1"> 未送信が確定したら再送</label><button>照合</button></form>`
+          ? `<form method="post" action="/projects/${esc(projectCode)}/requests/${esc(r.id)}/reconcile"><label class="check"><input type="checkbox" name="resendIfAbsent" value="1"> 未送信が確定したら再送</label><button type="submit">照合</button></form>`
           : '';
       return `<tr><td>${esc(r.title)}<br><span class="muted">${esc(r.selection.workBranch)} ← ${esc(r.selection.baseBranch)}</span></td><td>${esc(r.destinationId)}</td><td>${esc(describeRequestState(r.state))}${r.ccSessionId ? `<br>session ${esc(r.ccSessionId)}` : ''}${r.harnessSelection ? `<br>${esc(describeSelectionState(r.harnessSelection))}` : ''}</td><td>${esc(r.sourceCommentIds.join(', '))}</td><td>${reconcile}</td></tr>`;
     })
@@ -117,8 +117,8 @@ export function workSection(d: VariantDetail, projectCode: string): string {
     .reverse()
     .map((s) => `<tr><td>${esc(s.sessionId)}</td><td>${esc(s.selection.workBranch)}</td><td>${esc(describeSelectionState(s.state))} ${esc(s.detail ?? '')}</td></tr>`)
     .join('');
-  return `<section><h2>作業依頼 (Cc spawn)</h2><table><tr><th>依頼</th><th>宛先</th><th>状態</th><th>元コメント</th><th></th></tr>${rows || '<tr><td colspan="5" class="muted">なし</td></tr>'}</table>
-<h3>Cc harness への流れ選択</h3><table><tr><th>session</th><th>作業ブランチ</th><th>結果</th></tr>${selections || '<tr><td colspan="3" class="muted">なし</td></tr>'}</table></section>`;
+  return `<section><h3>作業依頼 (Cc spawn)</h3><div class="table-scroll"><table><tr><th>依頼</th><th>宛先</th><th>状態</th><th>元コメント</th><th></th></tr>${rows || '<tr><td colspan="5" class="muted">なし</td></tr>'}</table></div>
+<h4>Cc harness への流れ選択</h4><div class="table-scroll"><table><tr><th>session</th><th>作業ブランチ</th><th>結果</th></tr>${selections || '<tr><td colspan="3" class="muted">なし</td></tr>'}</table></div></section>`;
 }
 
 export function decisionsSection(d: VariantDetail): string {
@@ -129,5 +129,5 @@ export function decisionsSection(d: VariantDetail): string {
         `<tr><td>${esc(x.decidedAt)}</td><td>${x.verdict === 'adopted' ? '採用' : '見送り'}</td><td>${esc(x.target.commit ?? '—')}</td><td>${esc(x.reason)}</td><td>${esc(x.decidedBy)}</td><td>${esc(describeIntegration(x.integration))}</td></tr>`,
     )
     .join('');
-  return `<section><h2>合流判断の履歴</h2><table><tr><th>日時</th><th>判断</th><th>版</th><th>理由</th><th>判断者</th><th>コード統合</th></tr>${rows || '<tr><td colspan="6" class="muted">なし</td></tr>'}</table></section>`;
+  return `<section><h3>合流判断の履歴</h3><div class="table-scroll"><table><tr><th>日時</th><th>判断</th><th>版</th><th>理由</th><th>判断者</th><th>コード統合</th></tr>${rows || '<tr><td colspan="6" class="muted">なし</td></tr>'}</table></div></section>`;
 }
