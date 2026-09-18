@@ -14,7 +14,7 @@
     { "pathPattern": "^spec/(ux|architecture|tasks)/[^/]+$" },
     { "pathPattern": "^spec/feature/web-ui\\.md$" },
     { "pathPattern": "^spec/domains/platform-foundation\\.domain\\.json$" },
-    { "pathPattern": "^(package\\.json|tsconfig\\.json|\\.gitignore|\\.gitattributes|README\\.md|augur\\.contracts\\.json|cc\\.acceptance\\.json)$" }
+    { "pathPattern": "^(package\\.json|tsconfig\\.json|\\.gitignore|\\.gitattributes|README\\.md|augur\\.contracts\\.json|cc\\.acceptance\\.json|excubitor\\.catalog\\.yaml)$" }
   ],
   "cardTemplate": "Summarise the \"platform-foundation\" domain: shared kernel, storage/Cc/deploy adapters, HTTP+HTML delivery surface and composition root. No business decisions live here.",
   "specRefs": [

@@ -45,7 +45,7 @@ Tela adapter は Tela ホストの接続方式が決まってから `src/adapter
 | implementation-requests | `src/implementation-requests/**` | `tests/implementation-requests/**` | CF-SPAWN-001 |
 | playable-results | `src/playable-results/**` | `tests/playable-results/**` | CF-ARTIFACT-001, CF-BUILD-001, CF-DEPLOY-001 |
 | flow-isolation | `src/flow-isolation/**` | `tests/flow-isolation/**` | CF-HARNESS-001 (Cf 側の選択と照合のみ) |
-| platform-foundation | `src/shared/*`, `src/adapters/**`, `src/main.ts`, `contracts/*` | `tests/shared/*`, `tests/adapters/**`, `tests/support/*` | CF-DESIGN-001, CF-WEB-001 |
+| platform-foundation | `src/shared/*`, `src/adapters/**`, `src/main.ts`, `contracts/*` | `tests/shared/*`, `tests/adapters/**`, `tests/support/*` | CF-DESIGN-001, CF-WEB-001, CF-OPS-001 |
 
 正本の membership は `spec/domains/<domain>.domain.json`。
 

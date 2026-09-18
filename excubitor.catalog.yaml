@@ -1,0 +1,47 @@
+# Excubitor catalog fragment -- Conflux (サービス所有 catalog)。
+#
+# Conflux の起動定義の正本。ポート番号はここにだけ書き、コードには持たない
+# (port-source-rule)。起動・停止は Excubitor 経由、本体 checkout (${ARS_ROOT}/Conflux)
+# からのみ行い、worktree からは起動しない。
+#
+# Concordia の URL は書かない。Concordia 所有 catalog の `provides: CONCORDIA_URL` を
+# Excubitor が topology env として注入し、loadConfig がそれを読む
+# (CONFLUX_CC_URL を明示した場合だけそちらを優先する)。
+#
+# 公開トンネル / Viewer / *_PUBLIC_URL は設定しない。待受は loopback のみ。
+services:
+  - code: conflux
+    name: Conflux (CDGD フロー作業場)
+    tier: personal
+    project_code: Cf
+    component: backend
+    port: 4350
+    # Web 入口 (loopback のみ。公開 URL は持たない)。
+    frontend_url: http://127.0.0.1:4350/
+    # repo: 未登録。origin 未設定で GitHub 上の実在も未確認のため記載しない。
+    runtime: node
+    cwd: ${ARS_ROOT}/Conflux
+    command: node src/main.ts
+    autostart: false
+    restart_policy: "no"
+    health:
+      type: http
+      url: http://127.0.0.1:4350/health
+      interval_sec: 30
+      grace_period_sec: 10
+    log_path: ${ARS_ROOT}/logs/conflux
+    env:
+      NODE_ENV: production
+      CONFLUX_HOST: 127.0.0.1
+      CONFLUX_PORT: "4350"
+      # 永続データ。data/ は .gitignore 済み。
+      CONFLUX_DATA_DIR: ${ARS_ROOT}/Conflux/data
+      CONFLUX_CC_TIMEOUT_MS: "5000"
+      # Cc 側で未定義の経路 (CONFLUX_CC_SPAWN_PATH / _SPAWN_LOOKUP_PATH / _BUILD_PATH /
+      # _IDENTITY_PATH) は設定しない。未設定の間は各機能が「未接続」を返す。
+      # CONFLUX_HOOK_TOKEN は secret のため catalog に置かない。未設定ならフック受信は 503。
+    required_env:
+      - CONFLUX_HOST
+      - CONFLUX_PORT
+      - CONFLUX_DATA_DIR
+      - CONFLUX_CC_TIMEOUT_MS

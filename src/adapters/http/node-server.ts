@@ -1,5 +1,7 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
-import type { HttpRequest } from './http-types.ts';
+import type { WebAccess } from '../config/web-access.ts';
+import { admitWebRequest } from './host-origin-guard.ts';
+import type { HttpRequest, HttpResponse } from './http-types.ts';
 import type { Router } from './router.ts';
 
 export const MAX_BODY_BYTES = 1_000_000;
@@ -24,25 +26,35 @@ function toHeaders(req: IncomingMessage): Record<string, string | undefined> {
   return out;
 }
 
+function send(res: ServerResponse, response: HttpResponse): void {
+  res.writeHead(response.status, response.headers);
+  res.end(response.body);
+}
+
 /**
- * Adapts node:http to the transport-neutral router. The caller owns the returned server
- * and is responsible for `listen` and `close`.
+ * Adapts node:http to the transport-neutral router. Host / Origin admission runs before
+ * the body is read or any route is matched. The caller owns the returned server and is
+ * responsible for `listen` and `close`.
  */
-export function createNodeServer(router: Router, onError: (error: unknown) => void): Server {
+export function createNodeServer(router: Router, access: WebAccess, onError: (error: unknown) => void): Server {
   return createServer((req: IncomingMessage, res: ServerResponse) => {
     void (async () => {
       try {
+        const headers = toHeaders(req);
+        const refusal = admitWebRequest(headers, access);
+        if (refusal) {
+          send(res, refusal);
+          return;
+        }
         const url = new URL(req.url ?? '/', 'http://localhost');
         const request: HttpRequest = {
           method: req.method ?? 'GET',
           path: url.pathname,
           query: url.searchParams,
-          headers: toHeaders(req),
+          headers,
           body: req.method === 'GET' || req.method === 'HEAD' ? '' : await readBody(req),
         };
-        const response = await router.handle(request);
-        res.writeHead(response.status, response.headers);
-        res.end(response.body);
+        send(res, await router.handle(request));
       } catch (error) {
         if (error instanceof BodyTooLargeError) {
           res.writeHead(413, { 'content-type': 'application/json; charset=utf-8' });

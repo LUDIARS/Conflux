@@ -8,13 +8,14 @@ import { composeDeps } from './adapters/compose.ts';
 import { loadConfig } from './adapters/config/load-config.ts';
 import { UnconfiguredDeployGateway } from './adapters/deploy/unconfigured-deploy-gateway.ts';
 import { createApp } from './adapters/http/create-app.ts';
+import { describeHealth, registerHealthRoute } from './adapters/http/health.ts';
 import { createNodeServer } from './adapters/http/node-server.ts';
 import { JsonFileDatabase } from './adapters/storage/json-file-database.ts';
 import { systemClock, uuidIds } from './shared/runtime.ts';
 
 /**
- * Composition root. Not started by this change; running the service is a separate,
- * explicitly authorised step (Excubitor-managed).
+ * Composition root. Started only by Excubitor from the Conflux checkout
+ * (`excubitor.catalog.yaml`); the catalog owns the port and data directory.
  */
 async function main(): Promise<void> {
   const config = loadConfig(process.env);
@@ -35,7 +36,8 @@ async function main(): Promise<void> {
     },
     { clock: systemClock, ids: uuidIds, hookToken: config.hookToken },
   );
-  const server = createNodeServer(createApp(deps), (error) => {
+  const router = registerHealthRoute(createApp(deps), describeHealth(config, systemClock.now()));
+  const server = createNodeServer(router, config.access, (error) => {
     process.stderr.write(`[conflux] request failed: ${error instanceof Error ? error.stack : String(error)}\n`);
   });
   const shutdown = () => server.close(() => process.exit(0));

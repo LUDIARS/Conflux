@@ -37,7 +37,7 @@
     { "source": "src/adapters/cc/cc-identity-gateway.ts", "tests": ["tests/adapters/cc-gateways.test.ts"], "contracts": [] },
     { "source": "src/adapters/cc/cc-build-trigger-gateway.ts", "tests": ["tests/adapters/cc-gateways.test.ts"], "contracts": [] },
     { "source": "src/adapters/storage/json-file-database.ts", "tests": ["tests/adapters/storage-and-config.test.ts"], "contracts": [] },
-    { "source": "src/adapters/config/load-config.ts", "tests": ["tests/adapters/storage-and-config.test.ts"], "contracts": [] },
+    { "source": "src/adapters/config/load-config.ts", "tests": ["tests/adapters/storage-and-config.test.ts", "tests/adapters/service-operation.test.ts"], "contracts": [] },
     { "source": "src/adapters/http/create-app.ts", "tests": ["tests/adapters/http-app.test.ts"], "contracts": [] },
     { "source": "src/adapters/http/api/hook-api.ts", "tests": ["tests/adapters/http-app.test.ts"], "contracts": [] },
     { "source": "src/adapters/http/html/project-page.ts", "tests": ["tests/adapters/http-app.test.ts", "tests/adapters/web-ui.test.ts"], "contracts": [] },
@@ -62,6 +62,14 @@
     { "source": "src/adapters/http/html/variant-sections.ts", "tests": ["tests/adapters/web-ui.test.ts"], "contracts": [] },
     { "source": "src/adapters/http/page-routes.ts", "tests": ["tests/adapters/web-ui.test.ts", "tests/adapters/http-app.test.ts"], "contracts": [] },
     { "source": "contracts/plan-variant.contract.ts", "tests": ["tests/shared/contracts.test.ts"], "contracts": ["C-1"] },
-    { "source": "contracts/project-view-href.contract.ts", "tests": ["tests/adapters/web-ui.test.ts"], "contracts": ["C-15"] }
+    { "source": "contracts/project-view-href.contract.ts", "tests": ["tests/adapters/web-ui.test.ts"], "contracts": ["C-15"] },
+    { "source": "src/adapters/config/cc-url.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": ["C-16"] },
+    { "source": "src/adapters/config/web-access.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": [] },
+    { "source": "src/adapters/http/host-origin-guard.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": ["C-17"] },
+    { "source": "src/adapters/http/health.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": ["C-18"] },
+    { "source": "src/adapters/http/node-server.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": [] },
+    { "source": "contracts/resolve-cc-base-url.contract.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": ["C-16"] },
+    { "source": "contracts/admit-web-request.contract.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": ["C-17"] },
+    { "source": "contracts/describe-health.contract.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": ["C-18"] }
   ]
 }
