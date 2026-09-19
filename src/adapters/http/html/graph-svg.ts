@@ -1,5 +1,5 @@
 import type { FlowGraph, GraphNode } from '../../../evolution-streams/domain/flow-graph.ts';
-import { LAYOUT, layoutFlowGraph } from '../../../evolution-streams/domain/graph-layout.ts';
+import { LAYOUT, layoutFlowGraph, type FlowOrientation } from '../../../evolution-streams/domain/graph-layout.ts';
 import { esc } from './escape.ts';
 import type { GraphZoom } from './graph-zoom.ts';
 import { truncateLabel } from './svg-label.ts';
@@ -35,8 +35,9 @@ export function renderGraphSvg(
   selectedVariantId: string | undefined,
   zoom: GraphZoom,
   variantHref: (variantId: string) => string,
+  orientation: FlowOrientation,
 ): string {
-  const layout = layoutFlowGraph(graph);
+  const layout = layoutFlowGraph(graph, orientation);
   const w = LAYOUT.nodeWidth;
   const h = LAYOUT.nodeHeight;
   const tideLabel = new Map(graph.nodes.filter((n) => n.kind === 'tide').map((n) => [n.id, n.label] as const));
@@ -58,5 +59,5 @@ export function renderGraphSvg(
       return `<a class="graph-node" href="${esc(variantHref(node.id))}" aria-label="${esc(name)}"${selected ? ' data-selected="true" aria-current="true"' : ''}>${body}</a>`;
     })
     .join('');
-  return `<svg class="graph-svg" role="group" aria-label="潮流・亜流グラフ" viewBox="0 0 ${layout.width} ${layout.height}" ${sizeAttributes(layout.width, layout.height, zoom)}>${edges}${nodes}</svg>`;
+  return `<svg class="graph-svg graph-${orientation}" data-orientation="${orientation}" role="group" aria-label="潮流・亜流グラフ (${orientation === 'rightward' ? '流れは右へ進み、潮流は縦に分岐' : '流れは上へ進み、潮流は横に分岐'})" viewBox="0 0 ${layout.width} ${layout.height}" ${sizeAttributes(layout.width, layout.height, zoom)}>${edges}${nodes}</svg>`;
 }

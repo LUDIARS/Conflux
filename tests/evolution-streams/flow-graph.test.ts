@@ -39,11 +39,43 @@ describe('flow graph projection', () => {
     assert.equal(v1?.kind === 'variant' ? v1.mainlineBranch : 'x', undefined);
   });
 
-  it('lays out one column per tide and places every edge endpoint', () => {
-    const layout = layoutFlowGraph(graph);
-    const x1 = layout.nodes.find((n) => n.node.id === 'v1')?.x;
-    const x2 = layout.nodes.find((n) => n.node.id === 'v2')?.x;
-    assert.notEqual(x1, x2);
-    assert.equal(layout.edges.length, graph.edges.length);
+  describe('orientation', () => {
+    // v3 comes after v1 in the same tide, so it is one step further along the flow.
+    const later: Variant = { ...base, id: 'v3', tideId: 't1', slug: 'finisher', title: '決め手' };
+    const flow = projectFlowGraph({ tides, variants: [...variants, later], merges: [{ variantId: 'v2', integration: 'awaiting' }] });
+    const placed = (layout: ReturnType<typeof layoutFlowGraph>, id: string) => {
+      const p = layout.nodes.find((n) => n.node.id === id);
+      assert.ok(p, `node ${id} is placed`);
+      return p;
+    };
+
+    it('rightward: the flow advances to the right and tides branch vertically', () => {
+      const layout = layoutFlowGraph(flow, 'rightward');
+      assert.ok(placed(layout, 't1').x > placed(layout, OFFICIAL_NODE_ID).x);
+      assert.ok(placed(layout, 'v3').x > placed(layout, 'v1').x);
+      assert.equal(placed(layout, 'v3').y, placed(layout, 'v1').y);
+      assert.notEqual(placed(layout, 't1').y, placed(layout, 't2').y);
+      assert.equal(placed(layout, 't1').x, placed(layout, 't2').x);
+      assert.equal(layout.edges.length, flow.edges.length);
+    });
+
+    it('upward: the flow advances toward the top and tides branch horizontally', () => {
+      const layout = layoutFlowGraph(flow, 'upward');
+      assert.ok(placed(layout, 't1').y < placed(layout, OFFICIAL_NODE_ID).y);
+      assert.ok(placed(layout, 'v3').y < placed(layout, 'v1').y);
+      assert.equal(placed(layout, 'v3').x, placed(layout, 'v1').x);
+      assert.notEqual(placed(layout, 't1').x, placed(layout, 't2').x);
+      assert.equal(placed(layout, 't1').y, placed(layout, 't2').y);
+      assert.equal(layout.edges.length, flow.edges.length);
+    });
+
+    it('keeps every node inside the drawing in both orientations', () => {
+      for (const orientation of ['rightward', 'upward'] as const) {
+        const layout = layoutFlowGraph(flow, orientation);
+        for (const { x, y } of layout.nodes) {
+          assert.ok(x > 0 && x < layout.width && y > 0 && y < layout.height, `${orientation} ${x},${y}`);
+        }
+      }
+    });
   });
 });

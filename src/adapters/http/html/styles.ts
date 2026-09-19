@@ -51,6 +51,7 @@ main { padding:12px 16px 32px; max-width:1440px; margin:0 auto; }
 .graph-scroll { overflow:auto; max-height:60vh; min-height:200px; border:1px solid var(--line); border-radius:8px; background:var(--bg); overscroll-behavior:contain; touch-action:pan-x pan-y; }
 .graph-scroll.fit { overflow:hidden; }
 .graph-svg { display:block; }
+.graph-svg.graph-rightward { display:none; }
 .graph-scroll.fit .graph-svg { height:auto; max-height:60vh; }
 svg text { fill: var(--fg); font-size:12px; }
 .legend { font-size:12px; display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; }
@@ -98,6 +99,8 @@ button.primary { background:var(--accent); color:var(--accent-fg); border-color:
   .pane-graph { position:sticky; top:12px; max-height:calc(100vh - 24px); overflow-y:auto; }
   .tabs ul { grid-template-columns:repeat(6, minmax(0,1fr)); }
   .graph-scroll { max-height:55vh; }
+  .graph-svg.graph-rightward { display:block; }
+  .graph-svg.graph-upward { display:none; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } }
 `;

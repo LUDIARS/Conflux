@@ -17,6 +17,8 @@ function panButton(label: string, ariaLabel: string, dx: number, dy: number): st
 const LEGEND = `<p class="legend muted"><span class="swatch official"></span>正式ルール <span class="swatch tide"></span>潮流 <span class="swatch variant"></span>亜流 <span class="line branched"></span>分岐 <span class="line merged"></span>合流</p>`;
 
 /**
+ * Both orientations are rendered; the stylesheet shows the rightward graph on wide screens and
+ * the upward one on narrow screens, so no script or reload is needed when the width changes.
  * Graph with its own controls: fit / zoom links work without script, the scroll area moves
  * with touch, wheel, scrollbars or arrow keys, and pan buttons are added by the helper script.
  */
@@ -37,7 +39,8 @@ ${zoomLink('等倍', '等倍で表示', 'reset', href(DEFAULT_ZOOM), isActual)}
 <span class="pan-group">${panButton('←', '左へ移動', -1, 0)}${panButton('↑', '上へ移動', 0, -1)}${panButton('↓', '下へ移動', 0, 1)}${panButton('→', '右へ移動', 1, 0)}</span>
 </div>
 <div class="graph-scroll${isFit ? ' fit' : ''}" tabindex="0" data-graph-scroll aria-label="グラフ表示領域 (矢印キーで移動、+ と - で拡大縮小、0 で全体表示)">
-${renderGraphSvg(graph, selectedVariantId, state.zoom, variantHref)}
+${renderGraphSvg(graph, selectedVariantId, state.zoom, variantHref, 'rightward')}
+${renderGraphSvg(graph, selectedVariantId, state.zoom, variantHref, 'upward')}
 </div>
 ${LEGEND}
 </div>`;

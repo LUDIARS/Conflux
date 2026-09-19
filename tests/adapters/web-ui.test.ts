@@ -106,8 +106,13 @@ describe('web project page (CF-WEB-001)', () => {
       assert.ok(hrefs.length > 0, cls);
       for (const href of hrefs) assert.equal(new URL(href, 'http://x').searchParams.get('variant'), s.variant.id, `${cls}: ${href}`);
     }
-    assert.match(res.body, /<svg[^>]*class="graph-svg"/);
-    assert.match(res.body, /data-selected="true"/);
+    // Both orientations are rendered; the stylesheet picks one by width, so each keeps the selection.
+    assert.match(res.body, /<svg[^>]*class="graph-svg graph-rightward"/);
+    assert.match(res.body, /<svg[^>]*class="graph-svg graph-upward"/);
+    const svgs = res.body.match(/<svg[^>]*class="graph-svg[\s\S]*?<\/svg>/g) ?? [];
+    assert.equal(svgs.length, 2);
+    for (const svg of svgs) assert.match(svg, /data-selected="true"/);
+    assert.match(res.body, /@media \(min-width: 960px\) \{[^}]*\}[^@]*\.graph-svg\.graph-upward \{ display:none; \}/s);
     // only the active tab's body is rendered
     assert.match(res.body, /コメントを書く/);
     assert.doesNotMatch(res.body, /合流判断の履歴/);

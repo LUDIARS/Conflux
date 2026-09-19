@@ -26,7 +26,8 @@ export const CLIENT_SCRIPT = `(function () {
       var link = viewport.querySelector('a[data-zoom-key="' + key + '"]');
       if (link) { e.preventDefault(); link.click(); }
     });
-    var selected = scroller.querySelector('[data-selected="true"]');
+    // Both orientations are in the page; only the one the stylesheet shows has a box.
+    var selected = Array.prototype.find.call(scroller.querySelectorAll('[data-selected="true"]'), function (el) { return el.getClientRects().length > 0; });
     if (selected && !scroller.classList.contains('fit')) {
       var box = selected.getBoundingClientRect();
       var area = scroller.getBoundingClientRect();
