@@ -18,7 +18,7 @@ services:
     port: 4350
     # Web 入口 (loopback のみ。公開 URL は持たない)。
     frontend_url: http://127.0.0.1:4350/
-    # repo: 未登録。origin 未設定で GitHub 上の実在も未確認のため記載しない。
+    repo: LUDIARS/Conflux
     runtime: node
     cwd: ${ARS_ROOT}/Conflux
     command: node src/main.ts
