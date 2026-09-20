@@ -3,10 +3,10 @@ import { describe, it } from 'node:test';
 import projectViewHrefContract from '../../contracts/project-view-href.contract.ts';
 import { createApp } from '../../src/adapters/http/create-app.ts';
 import { CLIENT_SCRIPT } from '../../src/adapters/http/html/client-script.ts';
-import { parseGraphZoom, stepGraphZoom } from '../../src/adapters/http/html/graph-zoom.ts';
+import { ACTUAL_SIZE_ZOOM, AUTO_ZOOM, DEFAULT_ZOOM, FIT_ZOOM, parseGraphZoom, stepGraphZoom } from '../../src/adapters/http/html/graph-zoom.ts';
 import { STYLE } from '../../src/adapters/http/html/styles.ts';
 import { truncateLabel } from '../../src/adapters/http/html/svg-label.ts';
-import { DETAIL_TABS, parseProjectView, projectViewHref, returnHref, type ProjectViewPatch } from '../../src/adapters/http/html/view-state.ts';
+import { DETAIL_TABS, parseProjectView, projectViewHref, returnHref, type ProjectViewPatch, type ProjectViewState } from '../../src/adapters/http/html/view-state.ts';
 import type { HttpRequest } from '../../src/adapters/http/http-types.ts';
 import { createTide, createVariant, recordRevision } from '../../src/evolution-streams/application/flow-use-cases.ts';
 import { configureWorkspace } from '../../src/project-workspaces/application/workspace-use-cases.ts';
@@ -43,8 +43,9 @@ describe('web view state (CF-WEB-001)', () => {
     assert.equal(s.variantId, 'v1');
     assert.equal(s.view, 'graph');
     assert.equal(s.tab, 'concept');
-    assert.deepEqual(s.zoom, { kind: 'scale', value: 1 });
+    assert.deepEqual(s.zoom, { kind: 'auto' });
     assert.deepEqual(parseProjectView(new URLSearchParams('zoom=fit&view=detail&tab=talk')).zoom, { kind: 'fit' });
+    assert.deepEqual(parseProjectView(new URLSearchParams('zoom=1')).zoom, { kind: 'scale', value: 1 });
   });
 
   it('C-15 pane, tab and zoom links keep the selected variant id', () => {
@@ -80,7 +81,30 @@ describe('web view state (CF-WEB-001)', () => {
     assert.equal(stepGraphZoom({ kind: 'scale', value: 2 }, 1), undefined);
     assert.equal(stepGraphZoom({ kind: 'scale', value: 0.5 }, -1), undefined);
     assert.deepEqual(stepGraphZoom({ kind: 'fit' }, 1), { kind: 'scale', value: 1 });
+    assert.deepEqual(stepGraphZoom({ kind: 'fit' }, -1), { kind: 'scale', value: 1 });
     assert.deepEqual(stepGraphZoom(parseGraphZoom('1'), 1), { kind: 'scale', value: 1.5 });
+  });
+
+  it('opens on the screen-led view, so no zoom and an unreadable zoom both mean auto', () => {
+    assert.deepEqual(DEFAULT_ZOOM, AUTO_ZOOM);
+    assert.deepEqual(parseGraphZoom(null), { kind: 'auto' });
+    assert.deepEqual(parseGraphZoom('7'), { kind: 'auto' });
+    assert.deepEqual(parseGraphZoom('fit'), { kind: 'fit' });
+    assert.deepEqual(parseGraphZoom('1'), { kind: 'scale', value: 1 });
+  });
+
+  it('leaves auto out of the link and spells fit and actual size out', () => {
+    const base: ProjectViewState = { view: 'graph', tab: 'concept', zoom: DEFAULT_ZOOM };
+    assert.equal(projectViewHref('KD', base), '/projects/KD');
+    assert.equal(projectViewHref('KD', base, { zoom: ACTUAL_SIZE_ZOOM }), '/projects/KD?zoom=1');
+    assert.equal(projectViewHref('KD', base, { zoom: FIT_ZOOM }), '/projects/KD?zoom=fit');
+    assert.equal(projectViewHref('KD', { ...base, zoom: FIT_ZOOM }, { zoom: AUTO_ZOOM }), '/projects/KD');
+  });
+
+  it('shrinks the wide graph only on arrival, and both graphs when the whole graph is asked for', () => {
+    assert.match(STYLE, /\.graph-scroll\.auto \.graph-svg\.graph-rightward \{[^}]*width:100%/);
+    assert.doesNotMatch(STYLE, /\.graph-scroll\.auto \.graph-svg\.graph-upward/);
+    assert.match(STYLE, /\.graph-scroll\.fit \.graph-svg \{[^}]*width:100%/);
   });
 
   it('shortens long node labels but keeps short ones', () => {

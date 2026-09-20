@@ -20,9 +20,14 @@ function subLabel(node: GraphNode): string {
   return node.kind === 'tide' ? '潮流' : '';
 }
 
+/**
+ * Auto keeps the drawn size in the markup and lets the stylesheet shrink only the orientation
+ * the screen is showing, so one zoom value can suit both widths without a script.
+ */
 function sizeAttributes(width: number, height: number, zoom: GraphZoom): string {
   if (zoom.kind === 'fit') return 'width="100%" preserveAspectRatio="xMidYMin meet"';
-  return `width="${Math.round(width * zoom.value)}" height="${Math.round(height * zoom.value)}"`;
+  const scale = zoom.kind === 'auto' ? 1 : zoom.value;
+  return `width="${Math.round(width * scale)}" height="${Math.round(height * scale)}" preserveAspectRatio="xMidYMin meet"`;
 }
 
 /**

@@ -49,10 +49,11 @@ main { padding:12px 16px 32px; max-width:1440px; margin:0 auto; }
 .zoom-level { min-width:4em; text-align:center; }
 .pan-group { display:inline-flex; gap:4px; }
 .graph-scroll { overflow:auto; max-height:60vh; min-height:200px; border:1px solid var(--line); border-radius:8px; background:var(--bg); overscroll-behavior:contain; touch-action:pan-x pan-y; }
-.graph-scroll.fit { overflow:hidden; }
 .graph-svg { display:block; }
 .graph-svg.graph-rightward { display:none; }
-.graph-scroll.fit .graph-svg { height:auto; max-height:60vh; }
+/* Asking for the whole graph shrinks it at any width; the reader chose that over reading the labels. */
+.graph-scroll.fit { overflow:hidden; }
+.graph-scroll.fit .graph-svg { width:100%; height:auto; max-height:60vh; }
 svg text { fill: var(--fg); font-size:12px; }
 .legend { font-size:12px; display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; }
 .swatch { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:middle; }
@@ -101,6 +102,14 @@ button.primary { background:var(--accent); color:var(--accent-fg); border-color:
   .graph-scroll { max-height:55vh; }
   .graph-svg.graph-rightward { display:block; }
   .graph-svg.graph-upward { display:none; }
+  /*
+   * The entry view on a wide screen: the rightward graph is short and grows sideways, so it is
+   * brought inside the pane rather than left reaching past the right edge where a reader arriving
+   * at the project would never see it. A narrow screen keeps the drawn size and scrolls, because
+   * squeezing the upward graph into a phone pane shrinks its labels past reading.
+   */
+  .graph-scroll.auto { overflow:hidden; }
+  .graph-scroll.auto .graph-svg.graph-rightward { width:100%; height:auto; max-height:60vh; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } }
 `;
