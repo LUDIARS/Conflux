@@ -2,11 +2,12 @@ import { fail, ok, type Result } from '../../shared/result.ts';
 import { validateSlug } from './slug.ts';
 
 /**
- * Physical branch naming is still undecided by humans (CF-DESIGN-001):
+ * How a variant's mainline is spelled in git (CF-DESIGN-001):
  * - 'suffix-main':          mainline = evolution/<tide>/<variant>/main
  * - 'variant-is-mainline':  mainline = evolution/<tide>/<variant> (shown as "main" in UI)
- * Git cannot hold both evolution/x/y and evolution/x/y/main, so the choice is data,
- * set per project and never defaulted silently.
+ * Git cannot hold both evolution/x/y and evolution/x/y/main, so this stays a per-project setting.
+ * Settled on 2026-09-20 as 'suffix-main': naming the variant itself the mainline would close the
+ * namespace beneath it for good, and nothing is gained by spending it.
  */
 export type MainlineNaming = 'suffix-main' | 'variant-is-mainline';
 

@@ -18,7 +18,11 @@ export interface RatingItem {
   readonly label: string;
 }
 
-/** Rating scale is undecided (CF-DEBUG-001); a project must declare one before ratings are accepted. */
+/**
+ * The scale ratings are posted on (CF-DEBUG-001). Settled on 2026-09-20 as one axis, how much fun
+ * it was, from 1 to 5; a project may declare its own. Records written before that may have none,
+ * and ratings stay refused for those until the project is configured again.
+ */
 export interface RatingScale {
   readonly min: number;
   readonly max: number;
@@ -33,8 +37,10 @@ export interface BuildSettings {
 }
 
 /**
- * Deploy environments and the Cc role names that count as "manager or above" are undecided.
- * Both are data; empty lists mean deploy is not permitted at all.
+ * Where a build may be deployed and which Cc role names count as "manager or above". The
+ * environment was settled on 2026-09-20 as one place to try things in; the role names are still
+ * open, because Cc has no role vocabulary to check against. Both are data, and an empty list
+ * means deploy is not permitted at all — which is what an empty `managerRoles` still says.
  */
 export interface DeploySettings {
   readonly environments: readonly string[];
@@ -55,6 +61,7 @@ export interface ProjectWorkspace {
   readonly name: string;
   /** Project code as registered in Cc (may differ from the Cf code). */
   readonly ccProjectCode: string;
+  /** Settled on 2026-09-20; absent only on records written before a project was configured again. */
   readonly branchNaming?: BranchNamingPolicy;
   readonly spawnDestinations: readonly SpawnDestination[];
   readonly ratingScale?: RatingScale;

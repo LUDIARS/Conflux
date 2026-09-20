@@ -39,9 +39,12 @@ describe('select use case', () => {
     assert.equal(gateways.calls.select[0]?.selection.baseBranch, 'evolution/rush/combo/main');
   });
 
-  it('refuses to select while branch naming is undecided', async () => {
+  it('refuses to select for a record saved before the naming was settled', async () => {
     const { deps, gateways } = testDeps();
-    const s = await seedProject(deps, { settings: { branchNaming: undefined as never } });
+    const s = await seedProject(deps);
+    // Configuring a project now fills the naming in, so only an older record can still lack it.
+    const { branchNaming: _omit, ...older } = s.workspace;
+    await deps.workspaces.put(older);
     const r = await selectFlowForSession(deps, { projectCode: 'KD', variantId: s.variant.id, task: 'faster', sessionId: 'sess-1' });
     assert.equal(r.ok ? null : r.error.code, 'branch_naming_undecided');
     assert.equal(gateways.calls.select.length, 0);

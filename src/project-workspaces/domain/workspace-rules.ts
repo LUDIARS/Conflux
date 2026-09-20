@@ -26,6 +26,24 @@ export interface WorkspaceSettingsInput {
 const PROJECT_CODE = /^[A-Za-z][A-Za-z0-9]{0,15}$/;
 const BUILD_TRIGGERS: readonly BuildTrigger[] = ['variant-mainline-updated', 'work-branch-submitted'];
 
+/**
+ * Settled by neco on 2026-09-20; until then every one of these was refused rather than guessed.
+ * A project may still override each of them, and an invalid value is still refused.
+ *
+ * - Naming: `evolution/<tide>/<variant>/main`. Git cannot hold both `evolution/x/y` and anything
+ *   beneath it, so letting the variant itself be the mainline would close that namespace for good.
+ * - Rating: one axis, how much fun it was, alongside the free-text comment. CF-UX-1 asks for short
+ *   and asynchronous opinions to survive, and every extra axis is a reason not to post one.
+ * - Build: on a recorded change to the variant's mainline, for web, so a reader can play the
+ *   difference without downloading anything (CF-UX-2). Cf keeps no artifact, only the reported URI.
+ * - Deploy: one environment to try things in. `managerRoles` stays empty, which denies deploying,
+ *   because Cc has no role vocabulary yet to check anyone against (CF-DEPLOY-001).
+ */
+const SETTLED_BRANCH_NAMING: BranchNamingPolicy = { evolutionPrefix: 'evolution', workPrefix: 'feature', mainline: 'suffix-main' };
+const SETTLED_RATING_SCALE: RatingScale = { min: 1, max: 5, items: [{ key: 'fun', label: '面白さ' }] };
+const SETTLED_BUILD: BuildSettings = { triggers: ['variant-mainline-updated'], platforms: ['web'] };
+const SETTLED_DEPLOY_ENVIRONMENTS: readonly string[] = ['試遊'];
+
 /** Address keys each destination kind must carry so Cc can resolve it. */
 const REQUIRED_ADDRESS_KEYS: Readonly<Record<SpawnDestinationKind, readonly string[]>> = {
   subsidiary: ['subsidiaryId'],
@@ -105,16 +123,27 @@ export function planWorkspace(
   const deploy = validateDeploy(input.deploy);
   if (!deploy.ok) return deploy;
 
+  // An empty build or deploy list is what a caller sends when it has nothing to say about them,
+  // so the settled answer fills it in; a list with entries is the project's own choice and stands.
+  const settledBuild: BuildSettings = {
+    triggers: input.build.triggers.length > 0 ? input.build.triggers : SETTLED_BUILD.triggers,
+    platforms: input.build.platforms.length > 0 ? input.build.platforms : SETTLED_BUILD.platforms,
+  };
+  const settledDeploy: DeploySettings = {
+    environments: input.deploy.environments.length > 0 ? input.deploy.environments : SETTLED_DEPLOY_ENVIRONMENTS,
+    managerRoles: input.deploy.managerRoles,
+  };
+
   return ok({
     id: input.projectCode,
     projectCode: input.projectCode,
     name: input.name.trim(),
     ccProjectCode: input.ccProjectCode,
-    ...(input.branchNaming ? { branchNaming: input.branchNaming } : {}),
+    branchNaming: input.branchNaming ?? SETTLED_BRANCH_NAMING,
     spawnDestinations: input.spawnDestinations,
-    ...(input.ratingScale ? { ratingScale: input.ratingScale } : {}),
-    build: input.build,
-    deploy: input.deploy,
+    ratingScale: input.ratingScale ?? SETTLED_RATING_SCALE,
+    build: settledBuild,
+    deploy: settledDeploy,
     debugIntake: input.debugIntake,
     // Observation belongs to Cc; configuring Cf never flips it.
     flowObservation: existing?.flowObservation ?? { state: 'unknown', reason: 'Cc 未照会' },
@@ -126,7 +155,7 @@ export function planWorkspace(
 export function requireBranchNaming(ws: ProjectWorkspace): Result<BranchNamingPolicy> {
   return ws.branchNaming
     ? ok(ws.branchNaming)
-    : fail('branch_naming_undecided', '本流ブランチの物理命名が未設定です (evolution/x/y/main か evolution/x/y かをプロジェクト設定で指定してください)');
+    : fail('branch_naming_undecided', '本流ブランチの物理命名が未設定です (プロジェクト設定を保存し直すと既定の evolution/x/y/main が入ります)');
 }
 
 export function isFlowEnabled(observation: FlowObservation): boolean {

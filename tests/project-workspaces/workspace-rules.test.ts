@@ -30,11 +30,33 @@ describe('workspace settings', () => {
     assert.equal(r.ok, false);
   });
 
-  it('reports undecided branch naming instead of defaulting', () => {
-    const { branchNaming: _omit, ...rest } = workspaceInput();
-    const r = planWorkspace(undefined, rest, now);
+  it('fills in what was settled when the project says nothing about it', () => {
+    const { branchNaming: _naming, ratingScale: _scale, ...rest } = workspaceInput();
+    const r = planWorkspace(undefined, { ...rest, build: { triggers: [], platforms: [] }, deploy: { environments: [], managerRoles: [] } }, now);
     assert.ok(r.ok);
-    assert.equal(requireBranchNaming(r.value).ok, false);
+    assert.deepEqual(r.value.branchNaming, { evolutionPrefix: 'evolution', workPrefix: 'feature', mainline: 'suffix-main' });
+    assert.deepEqual(r.value.ratingScale, { min: 1, max: 5, items: [{ key: 'fun', label: '面白さ' }] });
+    assert.deepEqual(r.value.build, { triggers: ['variant-mainline-updated'], platforms: ['web'] });
+    assert.deepEqual(r.value.deploy.environments, ['試遊']);
+    assert.equal(requireBranchNaming(r.value).ok, true);
+  });
+
+  it('keeps what the project did say, and still denies deploying until Cc names a role', () => {
+    const r = planWorkspace(undefined, workspaceInput(), now);
+    assert.ok(r.ok);
+    assert.equal(r.value.branchNaming?.mainline, 'suffix-main');
+    assert.deepEqual(r.value.build.platforms, ['windows']);
+    assert.deepEqual(r.value.deploy.environments, ['staging']);
+    const noRoles = planWorkspace(undefined, workspaceInput({ deploy: { environments: [], managerRoles: [] } }), now);
+    assert.ok(noRoles.ok);
+    assert.deepEqual(noRoles.value.deploy.managerRoles, []);
+  });
+
+  it('still reports undecided naming for a record written before it was settled', () => {
+    const r = planWorkspace(undefined, workspaceInput(), now);
+    assert.ok(r.ok);
+    const { branchNaming: _omit, ...older } = r.value;
+    assert.equal(requireBranchNaming(older).ok, false);
   });
 });
 
