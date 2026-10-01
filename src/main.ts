@@ -2,6 +2,7 @@ import { CcHttpClient } from './adapters/cc/cc-http-client.ts';
 import { HttpCcBuildTriggerGateway } from './adapters/cc/cc-build-trigger-gateway.ts';
 import { HttpCcHarnessGateway } from './adapters/cc/cc-harness-gateway.ts';
 import { HttpCcIdentityGateway } from './adapters/cc/cc-identity-gateway.ts';
+import { HttpCcManagementEventsGateway } from './adapters/cc/cc-management-events-gateway.ts';
 import { HttpCcProjectRegistry } from './adapters/cc/cc-project-registry.ts';
 import { HttpCcSpawnGateway } from './adapters/cc/cc-spawn-gateway.ts';
 import { composeDeps } from './adapters/compose.ts';
@@ -11,6 +12,7 @@ import { createApp } from './adapters/http/create-app.ts';
 import { describeHealth, registerHealthRoute } from './adapters/http/health.ts';
 import { createNodeServer } from './adapters/http/node-server.ts';
 import { JsonFileDatabase } from './adapters/storage/json-file-database.ts';
+import { startSignalDelivery } from './cc-management-feed/application/signal-delivery-loop.ts';
 import { systemClock, uuidIds } from './shared/runtime.ts';
 
 /**
@@ -33,6 +35,7 @@ async function main(): Promise<void> {
       buildTrigger: new HttpCcBuildTriggerGateway(client, config.ccBuildPath),
       identity: new HttpCcIdentityGateway(client, config.ccIdentityPath),
       deployTarget: new UnconfiguredDeployGateway(),
+      managementEvents: new HttpCcManagementEventsGateway(client, config.ccManagementEventsPath),
     },
     { clock: systemClock, ids: uuidIds, hookToken: config.hookToken },
   );
@@ -40,7 +43,13 @@ async function main(): Promise<void> {
   const server = createNodeServer(router, config.access, (error) => {
     process.stderr.write(`[conflux] request failed: ${error instanceof Error ? error.stack : String(error)}\n`);
   });
-  const shutdown = () => server.close(() => process.exit(0));
+  const delivery = startSignalDelivery(deps, (error) => {
+    process.stderr.write(`[conflux] management signal delivery failed: ${error instanceof Error ? error.message : String(error)}
+`);
+  });
+  const shutdown = () => {
+    void delivery.stop().finally(() => server.close(() => process.exit(0)));
+  };
   process.once('SIGINT', shutdown);
   process.once('SIGTERM', shutdown);
   server.listen(config.port, config.host, () => {

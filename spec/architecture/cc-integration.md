@@ -17,6 +17,15 @@ Cf はゲームの流れ・意見・採否・成果物への到達を扱う。Cf
   5xx/タイムアウトは `unknown`。`true` を受け取った場合だけ「有効」と表示する。
 - `select` が 404/405 を返す、または接続できない場合は `not_connected` (送信は成立していない)。
 
+## CDGD マネジメント変更列 (Cc PR #2218、配備済み)
+
+| 用途 | Cc API | Cf adapter |
+|---|---|---|
+| 意見・評価の通知 | `POST /v1/management/events` `{event_key, source:"cf", kind, project_code, target_key, origin, summary, observed_at}` | `src/adapters/cc/cc-management-events-gateway.ts` |
+
+- event_key で冪等。outbox から同じキーで再送する。詳細は [cc-management-feed](../feature/cc-management-feed.md)。
+- AI 要約は `origin=ai`。Cc は AI 由来だけを根拠にした依頼を拒否する。
+
 ## 未定義の経路 (残件: Cc 側に追加が必要)
 
 Cf はこれらの経路を port として定義し、HTTP adapter は Cc 側のパスが設定されるまで

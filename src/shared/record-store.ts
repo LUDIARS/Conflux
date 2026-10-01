@@ -28,7 +28,8 @@ export type CollectionName =
   | 'selections'
   | 'builds'
   | 'artifacts'
-  | 'deployments';
+  | 'deployments'
+  | 'signals';
 
 export const COLLECTION_NAMES: readonly CollectionName[] = [
   'workspaces',
@@ -43,6 +44,7 @@ export const COLLECTION_NAMES: readonly CollectionName[] = [
   'builds',
   'artifacts',
   'deployments',
+  'signals',
 ];
 
 export interface Database {

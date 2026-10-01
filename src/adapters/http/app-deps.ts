@@ -1,4 +1,5 @@
 import type { DecisionDeps } from '../../adoption-decisions/application/decision-use-cases.ts';
+import type { SignalDeps } from '../../cc-management-feed/application/signal-use-cases.ts';
 import type { FlowDeps } from '../../evolution-streams/application/flow-use-cases.ts';
 import type { OverviewDeps } from '../../evolution-streams/application/project-overview.ts';
 import type { RequestDeps } from '../../implementation-requests/application/request-use-cases.ts';
@@ -16,7 +17,8 @@ export type AppDeps = WorkspaceDeps &
   RequestDeps &
   BuildDeps &
   DeployDeps &
-  DecisionDeps & {
+  DecisionDeps &
+  SignalDeps & {
     readonly registry: CcProjectRegistry;
     /** Shared secret the Cc hooks present; undefined disables hook intake (503). */
     readonly hookToken: string | undefined;

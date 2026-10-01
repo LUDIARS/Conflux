@@ -29,6 +29,17 @@
 - `tests/play-feedback/feedback-rules.test.ts`
 - `tests/play-feedback/feedback-use-cases.test.ts`
 
+## cc-management-feed (CF-MGMT-01)
+
+- `src/cc-management-feed/application/signal-delivery-loop.ts`
+- `src/cc-management-feed/application/signal-use-cases.ts`
+- `src/cc-management-feed/domain/model.ts`
+- `src/cc-management-feed/domain/signal-rules.ts`
+- `src/cc-management-feed/ports.ts`
+- `src/adapters/cc/cc-management-events-gateway.ts`
+- `tests/cc-management-feed/signal-rules.test.ts`
+- `tests/cc-management-feed/signal-use-cases.test.ts`
+
 ## adoption-decisions (CF-MERGE-001)
 
 - `src/adoption-decisions/application/decision-use-cases.ts`

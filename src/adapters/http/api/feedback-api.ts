@@ -1,5 +1,7 @@
+import { queueFeedbackSignals } from '../../../cc-management-feed/application/signal-use-cases.ts';
 import { ingestDebugFeedback, postComment, rateVariant } from '../../../play-feedback/application/feedback-use-cases.ts';
 import type { CommentAuthor } from '../../../play-feedback/domain/model.ts';
+import type { Result } from '../../../shared/result.ts';
 import type { AppDeps } from '../app-deps.ts';
 import { BadRequestError, numberRecord, optStr, readJson, str, strList } from '../request-parsing.ts';
 import { resultResponse } from '../responses.ts';
@@ -12,6 +14,18 @@ function author(b: Record<string, unknown>): CommentAuthor {
   throw new BadRequestError('authorKind must be human or ai-summary');
 }
 
+/** Queues what was stored for the Cc management feed; a failed queue never undoes the post. */
+async function withSignals<T>(deps: AppDeps, result: Result<T>, stored: (value: T) => Parameters<typeof queueFeedbackSignals>[1]): Promise<Result<T>> {
+  if (result.ok) {
+    try {
+      await queueFeedbackSignals(deps, stored(result.value));
+    } catch (error) {
+      process.stderr.write(`[conflux] management signal queue failed: ${error instanceof Error ? error.message : String(error)}\n`);
+    }
+  }
+  return result;
+}
+
 export function registerFeedbackApi(router: Router, deps: AppDeps): void {
   router.add('POST', '/api/projects/:code/variants/:variantId/comments', async (req, p) => {
     const b = readJson(req);
@@ -20,7 +34,7 @@ export function registerFeedbackApi(router: Router, deps: AppDeps): void {
     const parentId = optStr(b, 'parentId');
     const playedBuildId = optStr(b, 'playedBuildId');
     return resultResponse(
-      await postComment(deps, {
+      await withSignals(deps, await postComment(deps, {
         projectCode: p.code as string,
         variantId: p.variantId as string,
         author: a,
@@ -29,7 +43,7 @@ export function registerFeedbackApi(router: Router, deps: AppDeps): void {
         ...(revisionId ? { revisionId } : {}),
         ...(parentId ? { parentId } : {}),
         ...(playedBuildId ? { playedBuildId } : {}),
-      }),
+      }), (comment) => ({ comment })),
       201,
     );
   });
@@ -37,13 +51,13 @@ export function registerFeedbackApi(router: Router, deps: AppDeps): void {
   router.add('POST', '/api/projects/:code/variants/:variantId/ratings', async (req, p) => {
     const b = readJson(req);
     return resultResponse(
-      await rateVariant(deps, {
+      await withSignals(deps, await rateVariant(deps, {
         projectCode: p.code as string,
         variantId: p.variantId as string,
         playedBuildId: str(b, 'playedBuildId'),
         rater: str(b, 'rater'),
         scores: numberRecord(b, 'scores') ?? {},
-      }),
+      }), (rating) => ({ rating })),
       201,
     );
   });
@@ -57,12 +71,12 @@ export function registerFeedbackApi(router: Router, deps: AppDeps): void {
     const body = optStr(b, 'body');
     const scores = numberRecord(b, 'scores');
     return resultResponse(
-      await ingestDebugFeedback(deps, {
+      await withSignals(deps, await ingestDebugFeedback(deps, {
         claim: { projectCode: str(b, 'projectCode'), variantId: str(b, 'variantId'), buildId: str(b, 'buildId'), commit: str(b, 'commit') },
         player: str(b, 'player'),
         ...(body ? { body } : {}),
         ...(scores ? { scores } : {}),
-      }),
+      }), (stored) => stored),
       201,
     );
   });

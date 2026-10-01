@@ -17,11 +17,19 @@ export interface ConfluxConfig {
   readonly ccBuildPath?: string;
   readonly ccIdentityPath?: string;
   readonly hookToken?: string;
+  /**
+   * Cc CDGD management feed route (deployed with Cc PR #2218). Defaults to the
+   * confirmed Cc path; `off` disables sending and leaves queued entries pending.
+   */
+  readonly ccManagementEventsPath?: string;
   /** Host / Origin values the Web entrance accepts. */
   readonly access: WebAccess;
 }
 
 export class ConfigError extends Error {}
+
+/** Confirmed Cc route for the CDGD management feed (Cc spec/feature/cdgd-management.md CC-MGMT-02). */
+export const DEFAULT_MANAGEMENT_EVENTS_PATH = '/v1/management/events';
 
 function required(env: Readonly<Record<string, string | undefined>>, key: string): string {
   const v = env[key]?.trim();
@@ -73,6 +81,9 @@ export function loadConfig(env: Readonly<Record<string, string | undefined>>): C
   const lookup = routePath(env, 'CONFLUX_CC_SPAWN_LOOKUP_PATH');
   const build = routePath(env, 'CONFLUX_CC_BUILD_PATH');
   const identity = routePath(env, 'CONFLUX_CC_IDENTITY_PATH');
+  const managementEvents = optional(env, 'CONFLUX_CC_MANAGEMENT_EVENTS_PATH') === 'off'
+    ? undefined
+    : routePath(env, 'CONFLUX_CC_MANAGEMENT_EVENTS_PATH') ?? DEFAULT_MANAGEMENT_EVENTS_PATH;
   const hookToken = optional(env, 'CONFLUX_HOOK_TOKEN');
   if (hookToken !== undefined && hookToken.length < 32) throw new ConfigError('CONFLUX_HOOK_TOKEN must be at least 32 characters');
   return {
@@ -86,6 +97,7 @@ export function loadConfig(env: Readonly<Record<string, string | undefined>>): C
     ...(build ? { ccBuildPath: build } : {}),
     ...(identity ? { ccIdentityPath: identity } : {}),
     ...(hookToken ? { hookToken } : {}),
+    ...(managementEvents ? { ccManagementEventsPath: managementEvents } : {}),
     access: asConfigError(() => buildWebAccess(port, env['LUDIARS_ALLOWED_HOSTS'], env['CONFLUX_VIEWER_ORIGINS'])),
   };
 }

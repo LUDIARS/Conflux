@@ -1,6 +1,7 @@
 import { composeDeps, type Gateways } from '../../src/adapters/compose.ts';
 import type { AppDeps } from '../../src/adapters/http/app-deps.ts';
 import { MemoryDatabase } from '../../src/adapters/storage/memory-database.ts';
+import type { ManagementSignal } from '../../src/cc-management-feed/domain/model.ts';
 import type { FlowSelection } from '../../src/flow-isolation/domain/selection.ts';
 import type { SpawnAccepted, SpawnLookup } from '../../src/implementation-requests/domain/model.ts';
 import type { SpawnPayload } from '../../src/implementation-requests/ports.ts';
@@ -36,6 +37,7 @@ export interface FakeGateways extends Gateways {
   buildOutcome: ExternalOutcome<{ readonly accepted: true }>;
   identityResult: IdentityVerification;
   deployOutcome: ExternalOutcome<{ readonly accepted: true }>;
+  managementOutcome: ExternalOutcome<{ readonly created: boolean }>;
   readonly calls: {
     select: { sessionId: string; selection: FlowSelection }[];
     spawn: SpawnPayload[];
@@ -43,6 +45,7 @@ export interface FakeGateways extends Gateways {
     build: BuildRequestPayload[];
     deploy: DeployPayload[];
     identityTokens: (string | undefined)[];
+    management: ManagementSignal[];
   };
 }
 
@@ -56,7 +59,8 @@ export function fakeGateways(): FakeGateways {
     buildOutcome: { kind: 'not_connected', reason: 'build route absent' },
     identityResult: { status: 'unavailable', reason: 'identity route absent' },
     deployOutcome: { kind: 'not_connected', reason: 'deploy target undecided' },
-    calls: { select: [], spawn: [], lookup: [], build: [], deploy: [], identityTokens: [] },
+    managementOutcome: { kind: 'accepted', value: { created: true } },
+    calls: { select: [], spawn: [], lookup: [], build: [], deploy: [], identityTokens: [], management: [] },
     registry: { lookup: async () => g.registryResult },
     harness: {
       select: async (sessionId, selection) => {
@@ -90,6 +94,12 @@ export function fakeGateways(): FakeGateways {
       deploy: async (payload) => {
         g.calls.deploy.push(payload);
         return g.deployOutcome;
+      },
+    },
+    managementEvents: {
+      send: async (signal) => {
+        g.calls.management.push(signal);
+        return g.managementOutcome;
       },
     },
   };

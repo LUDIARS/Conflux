@@ -1,4 +1,6 @@
 import type { AdoptionDecision } from '../adoption-decisions/domain/model.ts';
+import type { OutboxEntry } from '../cc-management-feed/domain/model.ts';
+import type { CcManagementEventsGateway } from '../cc-management-feed/ports.ts';
 import type { Revision, Tide, Variant } from '../evolution-streams/domain/model.ts';
 import type { SelectionRecord } from '../flow-isolation/domain/selection-record.ts';
 import type { ImplementationRequest } from '../implementation-requests/domain/model.ts';
@@ -20,6 +22,7 @@ export interface Gateways {
   readonly buildTrigger: BuildTriggerGateway;
   readonly identity: CcIdentityGateway;
   readonly deployTarget: DeployGateway;
+  readonly managementEvents: CcManagementEventsGateway;
 }
 
 /** Wires stores and gateways into the dependency set every use case receives. */
@@ -37,6 +40,7 @@ export function composeDeps(db: Database, gateways: Gateways, runtime: { readonl
     builds: db.collection<Build>('builds'),
     artifacts: db.collection<Artifact>('artifacts'),
     deployments: db.collection<Deployment>('deployments'),
+    signals: db.collection<OutboxEntry>('signals'),
     ...gateways,
     clock: runtime.clock,
     ids: runtime.ids,

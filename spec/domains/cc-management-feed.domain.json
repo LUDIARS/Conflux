@@ -1,0 +1,18 @@
+{
+  "name": "cc-management-feed",
+  "description": "Cc の CDGD マネジメント変更列への通知 (support): 保存したコメント・評価を outbox に積み、Cc POST /v1/management/events へ届ける。AI 要約は origin=ai で送り、意見の正本と採否は play-feedback / adoption-decisions が持つ。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    { "pathPattern": "(^|/)src/cc-management-feed/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)tests/cc-management-feed/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)src/adapters/cc/cc-management-events-gateway\\.ts$" },
+    { "pathPattern": "^spec/feature/cc-management-feed\\.md$" },
+    { "pathPattern": "^spec/domains/cc-management-feed\\.domain\\.json$" }
+  ],
+  "cardTemplate": "Summarise the \"cc-management-feed\" domain: stored feedback is queued once per record and delivered to the Cc management feed with the same event key until Cc accepts or refuses it; AI summaries are sent as origin=ai.",
+  "specRefs": [
+    "spec/feature/cc-management-feed.md",
+    "spec/architecture/cc-integration.md"
+  ]
+}

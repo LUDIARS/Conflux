@@ -4,6 +4,7 @@ import { HttpCcBuildTriggerGateway } from '../../src/adapters/cc/cc-build-trigge
 import { HARNESS_SELECT_PATH, HttpCcHarnessGateway } from '../../src/adapters/cc/cc-harness-gateway.ts';
 import { CcHttpClient, type FetchLike } from '../../src/adapters/cc/cc-http-client.ts';
 import { HttpCcIdentityGateway } from '../../src/adapters/cc/cc-identity-gateway.ts';
+import { HttpCcManagementEventsGateway } from '../../src/adapters/cc/cc-management-events-gateway.ts';
 import { HttpCcProjectRegistry } from '../../src/adapters/cc/cc-project-registry.ts';
 import { HttpCcSpawnGateway } from '../../src/adapters/cc/cc-spawn-gateway.ts';
 
@@ -92,5 +93,31 @@ describe('routes Cc has not defined yet', () => {
       sourceComments: [],
     });
     assert.equal(r.kind, 'unknown');
+  });
+});
+
+describe('management events gateway', () => {
+  const signal = {
+    eventKey: 'cf:comment:comment_1', kind: 'comment' as const, projectCode: 'KD', targetKey: 'variant/v1',
+    origin: 'human' as const, summary: 'p: 重い', observedAt: '2026-10-01T00:00:00.000Z',
+  };
+
+  it('posts the Cc CC-MGMT-02 body and reads created', async () => {
+    const { client: c, sent } = client(() => ({ status: 201, body: { created: true } }));
+    const outcome = await new HttpCcManagementEventsGateway(c, '/v1/management/events').send(signal);
+    assert.deepEqual(outcome, { kind: 'accepted', value: { created: true } });
+    assert.equal(sent[0]?.url, 'http://cc.test/v1/management/events');
+    assert.deepEqual(JSON.parse(sent[0]?.body ?? '{}'), {
+      event_key: 'cf:comment:comment_1', source: 'cf', kind: 'comment', project_code: 'KD', target_key: 'variant/v1',
+      origin: 'human', summary: 'p: 重い', observed_at: Date.parse('2026-10-01T00:00:00.000Z'),
+    });
+  });
+
+  it('is not_connected when disabled and maps 409 to rejected', async () => {
+    const off = client(() => ({ status: 201 }));
+    assert.equal((await new HttpCcManagementEventsGateway(off.client, undefined).send(signal)).kind, 'not_connected');
+    assert.equal(off.sent.length, 0);
+    const conflict = client(() => ({ status: 409, body: { error: 'event_key_conflict' } }));
+    assert.equal((await new HttpCcManagementEventsGateway(conflict.client, '/v1/management/events').send(signal)).kind, 'rejected');
   });
 });
