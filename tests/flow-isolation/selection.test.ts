@@ -39,6 +39,26 @@ describe('select use case', () => {
     assert.equal(gateways.calls.select[0]?.selection.baseBranch, 'evolution/rush/combo/main');
   });
 
+  it("cuts from the variant's mainline, not the repository's main", async () => {
+    const { deps, gateways } = testDeps();
+    const s = await seedProject(deps);
+    const r = await selectFlowForSession(deps, { projectCode: 'KD', variantId: s.variant.id, task: 'faster', sessionId: 'sess-1' });
+    assert.ok(r.ok);
+    const selection = gateways.calls.select[0]?.selection;
+    assert.equal(selection?.baseBranch, 'evolution/rush/combo/main');
+    assert.equal(selection?.workBranch, 'feature/rush/combo/faster');
+  });
+
+  it("treats the repository's main as outside the flow and moves off it when clean", () => {
+    const selection = unwrap(buildFlowSelection(policy, { projectCode: 'KD', tide: 'rush', variant: 'combo', task: 'faster' }));
+    const clean = assessCheckout(policy, selection, { branch: 'main', dirty: false });
+    assert.equal(clean.verdict, 'outside-flow');
+    assert.equal(clean.canSwitch, true);
+    const dirty = assessCheckout(policy, selection, { branch: 'main', dirty: true });
+    assert.equal(dirty.verdict, 'outside-flow');
+    assert.equal(dirty.canSwitch, false);
+  });
+
   it('refuses to select for a record saved before the naming was settled', async () => {
     const { deps, gateways } = testDeps();
     const s = await seedProject(deps);

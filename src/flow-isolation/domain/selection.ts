@@ -9,7 +9,13 @@ import { ok, type Result } from '../../shared/result.ts';
 /**
  * The selection handed to Cc: `POST /v1/harness/conflux/select`
  * `{ session_id, selection: { projectCode, tide, variant, baseBranch, workBranch } }`.
- * baseBranch is the variant's mainline under the project's explicit naming policy.
+ *
+ * baseBranch is the variant's mainline under the project's naming policy, never the repository's
+ * main. Settled on 2026-09-26 as the stated exception to "work starts from main" (requirement 9,
+ * which is unchanged for ordinary work): a tide is a branch where the rules are being changed, so
+ * the variant's mainline is where that attempt currently stands. Cutting from the repository's
+ * main each time would throw the attempt away and leave nothing to run variants in parallel for.
+ * Cf only hands the branch over; it never rebases or re-cuts history.
  */
 export interface FlowSelection {
   readonly projectCode: string;
