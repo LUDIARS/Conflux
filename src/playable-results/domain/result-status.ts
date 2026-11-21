@@ -1,4 +1,6 @@
 import type { Artifact, Build } from './model.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:21009f30 */
+import augurContract_7d7f6a8e from '../../../contracts/variant-result-status.contract.ts'; /* augur-inject:contract-predicate:60c4be3c */
 
 export type TargetResultState =
   | 'no_target'
@@ -77,6 +79,8 @@ export function variantResultStatus(input: {
     ...(lastPlayable ? { lastPlayable } : {}),
   };
 }
+// @ts-expect-error augur-inject
+variantResultStatus = contract(variantResultStatus, { ...augurContract_7d7f6a8e, contractId: 'C-11', mode: 'observe', sample: 1, where: 'src/playable-results/domain/result-status.ts:39', rule: 'contract-wrap', id: '7d7f6a8e' }); /* augur-inject:contract-wrap:7d7f6a8e */
 
 /** A tide/variant result counts as complete only when its target version is playable. */
 export function isResultComplete(status: VariantResultStatus): boolean {

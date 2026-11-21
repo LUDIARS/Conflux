@@ -4,7 +4,7 @@
 
 ## 所有
 
-ビルド記録 (契機・同一性キー・状態・ログ参照)、成果物参照 (平台・DL/デプロイ種別・URI)、デプロイ履歴。
+ビルド記録 (契機・同一性キー・状態・ログ参照)、成果物参照 (平台・DL/デプロイ種別・URI)、試遊結果、デプロイ履歴。
 ビルドの実行は Cc フック、成果物本体の保管は Cf の外。
 
 ## 不変条件
@@ -21,6 +21,16 @@
 `ports.ts`、`application/{build-use-cases,deploy-use-cases,flow-trigger}.ts`。
 フック受信: `POST /api/hooks/build-events` (Bearer `CONFLUX_HOOK_TOKEN` 必須、未設定なら 503)。
 テスト: `tests/playable-results/*.test.ts`。
+
+## 試遊結果の受信
+
+- `POST /api/hooks/playtest-results` は `Authorization: Bearer <CONFLUX_HOOK_TOKEN>` を要求する。
+- JSON は `id`, `projectCode`, `variantId`, `buildId`, `commit`, `origin`, `summary`, `observedAt` をすべて文字列で指定する。
+  `id` は報告元が一意かつ再送時にも固定とし、1〜188 文字の ASCII 英数字および `._:/#-` を使う（先頭は英数字）。
+  `origin` は試遊主体に基づく `human` / `ai` / `system`。`observedAt` は UTC の `YYYY-MM-DDTHH:mm:ss[.sss]Z`。
+- `projectCode`, `variantId`, `commit` が成功済みの `buildId` の記録と一致した場合に試遊結果を保存する。
+  同じ ID と同じ内容の再送は保存済みの記録を 200 で返す。別の内容で同じ ID を使うと 409 を返す。
+- 保存後の通知は [CF-MGMT-01](cc-management-feed.md#契約-cf-mgmt-01) に従う。
 
 ## 未決・未配備
 

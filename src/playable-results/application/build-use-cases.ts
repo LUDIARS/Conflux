@@ -6,6 +6,7 @@ import type { ProjectWorkspace } from '../../project-workspaces/domain/model.ts'
 import type { RecordStore } from '../../shared/record-store.ts';
 import { fail, ok, type Result } from '../../shared/result.ts';
 import type { Clock, IdGenerator } from '../../shared/runtime.ts';
+import { serialByKey } from '../../shared/serial-by-key.ts';
 import { applyBuildEvent, type BuildEvent, type BuildEventEffect } from '../domain/build-events.ts';
 import { applyBuildRequestOutcome, planFlowBuild, planRetry } from '../domain/build-requests.ts';
 import type { Artifact, Build, BuildOrigin } from '../domain/model.ts';
@@ -85,7 +86,18 @@ export async function retryBuild(deps: BuildDeps, input: { readonly projectCode:
  * Applies a Cc build-hook event. Builds Cc started on its own (without a Cf request)
  * are recorded under the event's dedupe key the first time they are reported.
  */
-export async function ingestBuildEvent(deps: BuildDeps, event: BuildEvent): Promise<Result<BuildEventEffect>> {
+export async function ingestBuildEvent(deps: BuildDeps & SignalQueueDeps, event: BuildEvent): Promise<Result<BuildEventEffect>> {
+  return serialByKey(deps.builds, JSON.stringify([event.projectCode, event.dedupeKey]), async () => {
+    const effect = await persistBuildEvent(deps, event);
+    if (effect.ok && effect.value.kind === 'applied') {
+      const signal = buildSignal(effect.value.build);
+      if (signal) await queueStoredSignal(deps, signal);
+    }
+    return effect;
+  });
+}
+
+async function persistBuildEvent(deps: BuildDeps, event: BuildEvent): Promise<Result<BuildEventEffect>> {
   const ws = await requireWorkspace(deps.workspaces, event.projectCode);
   if (!ws.ok) return ws;
   const variant = await requireVariant(deps.variants, event.projectCode, event.variantId);
@@ -113,3 +125,5 @@ export async function ingestBuildEvent(deps: BuildDeps, event: BuildEvent): Prom
   }
   return effect;
 }
+import { queueStoredSignal, type SignalQueueDeps } from '../../cc-management-feed/application/signal-use-cases.ts';
+import { buildSignal } from '../../cc-management-feed/domain/outcome-signals.ts';

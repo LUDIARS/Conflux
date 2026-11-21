@@ -1,6 +1,8 @@
 import type { ConfluxConfig } from '../config/load-config.ts';
 import { jsonResponse } from './responses.ts';
 import type { Router } from './router.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:52236105 */
+import augurContract_a0cf314b from '../../../contracts/describe-health.contract.ts'; /* augur-inject:contract-predicate:cee3eae9 */
 
 export type CapabilityState = 'configured' | 'not_connected';
 
@@ -43,6 +45,8 @@ export function describeHealth(config: ConfluxConfig, startedAt: string): Health
     },
   };
 }
+// @ts-expect-error augur-inject
+describeHealth = contract(describeHealth, { ...augurContract_a0cf314b, contractId: 'C-18', mode: 'observe', sample: 1, where: 'src/adapters/http/health.ts:29', rule: 'contract-wrap', id: 'a0cf314b' }); /* augur-inject:contract-wrap:a0cf314b */
 
 /** Liveness route for Excubitor's health check; the report is fixed at startup. */
 export function registerHealthRoute(router: Router, report: HealthReport): Router {

@@ -5,6 +5,8 @@ import {
   type BranchNamingPolicy,
 } from '../../evolution-streams/domain/branch-naming.ts';
 import { ok, type Result } from '../../shared/result.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:29e59dfd */
+import augurContract_4287b357 from '../../../contracts/assess-checkout.contract.ts'; /* augur-inject:contract-predicate:8aa98bab */
 
 /**
  * The selection handed to Cc: `POST /v1/harness/conflux/select`
@@ -90,3 +92,5 @@ export function assessCheckout(
       : '流れ外のブランチです。選択した流れの作業ブランチへ切り替えます',
   };
 }
+// @ts-expect-error augur-inject
+assessCheckout = contract(assessCheckout, { ...augurContract_4287b357, contractId: 'C-14', mode: 'observe', sample: 1, where: 'src/flow-isolation/domain/selection.ts:57', rule: 'contract-wrap', id: '4287b357' }); /* augur-inject:contract-wrap:4287b357 */

@@ -1,5 +1,7 @@
 import { fail, ok, type Result } from '../../shared/result.ts';
 import type { Comment, CommentAuthor, CommentSource, PlayedBuildRef } from './model.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:27cc7015 */
+import augurContract_bad43e0a from '../../../contracts/plan-comment.contract.ts'; /* augur-inject:contract-predicate:dcdeda05 */
 
 /** The facts about the target variant/build this domain needs, without owning those records. */
 export interface VariantFacts {
@@ -100,6 +102,8 @@ export function planComment(
     createdAt: stamp.at,
   });
 }
+// @ts-expect-error augur-inject
+planComment = contract(planComment, { ...augurContract_bad43e0a, contractId: 'C-4', mode: 'observe', sample: 1, where: 'src/play-feedback/domain/comment-rules.ts:42', rule: 'contract-wrap', id: 'bad43e0a' }); /* augur-inject:contract-wrap:bad43e0a */
 
 export interface CommentThread {
   readonly comment: Comment;

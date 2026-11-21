@@ -2,12 +2,12 @@
  * A change Cf reports to the Cc CDGD management feed (Cc spec/feature/cdgd-management.md
  * CC-MGMT-02). The outbox keeps it until Cc has accepted or definitively refused it.
  */
-export type SignalOrigin = 'human' | 'ai';
+export type SignalOrigin = 'human' | 'ai' | 'system';
 
 export interface ManagementSignal {
-  /** Idempotency key on the Cc side; one per stored comment or rating. */
+  /** Idempotency key on the Cc side; one per stored change. */
   readonly eventKey: string;
-  readonly kind: 'comment' | 'reply' | 'ai-summary' | 'rating';
+  readonly kind: 'comment' | 'reply' | 'ai-summary' | 'rating' | 'adoption' | 'build' | 'playtest';
   readonly projectCode: string;
   readonly targetKey: string;
   readonly origin: SignalOrigin;

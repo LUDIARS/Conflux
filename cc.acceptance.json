@@ -71,8 +71,15 @@
     { "source": "contracts/resolve-cc-base-url.contract.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": ["C-16"] },
     { "source": "contracts/admit-web-request.contract.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": ["C-17"] },
     { "source": "contracts/describe-health.contract.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": ["C-18"] },
-    { "source": "src/cc-management-feed/domain/signal-rules.ts", "tests": ["tests/cc-management-feed/signal-rules.test.ts"], "contracts": [] },
-    { "source": "src/cc-management-feed/application/signal-use-cases.ts", "tests": ["tests/cc-management-feed/signal-use-cases.test.ts"], "contracts": [] },
+    { "source": "src/adapters/http/host-matching.ts", "tests": ["tests/adapters/service-operation.test.ts"], "contracts": [] },
+    { "source": "src/cc-management-feed/domain/signal-rules.ts", "tests": ["tests/cc-management-feed/signal-rules.test.ts", "tests/cc-management-feed/outcome-signals.test.ts"], "contracts": [] },
+    { "source": "src/cc-management-feed/domain/outcome-signals.ts", "tests": ["tests/cc-management-feed/outcome-signals.test.ts", "tests/cc-management-feed/outcome-intake.test.ts"], "contracts": ["C-19", "C-20", "C-21"] },
+    { "source": "src/cc-management-feed/application/signal-use-cases.ts", "tests": ["tests/cc-management-feed/signal-use-cases.test.ts", "tests/cc-management-feed/outcome-intake.test.ts"], "contracts": [] },
+    { "source": "src/playable-results/application/playtest-use-case.ts", "tests": ["tests/cc-management-feed/outcome-intake.test.ts"], "contracts": [] },
+    { "source": "src/shared/serial-by-key.ts", "tests": ["tests/cc-management-feed/outcome-intake.test.ts"], "contracts": [] },
+    { "source": "contracts/adoption-signal.contract.ts", "tests": ["tests/cc-management-feed/outcome-intake.test.ts"], "contracts": ["C-19"] },
+    { "source": "contracts/build-signal.contract.ts", "tests": ["tests/cc-management-feed/outcome-signals.test.ts"], "contracts": ["C-20"] },
+    { "source": "contracts/playtest-signal.contract.ts", "tests": ["tests/cc-management-feed/outcome-signals.test.ts"], "contracts": ["C-21"] },
     { "source": "src/adapters/cc/cc-management-events-gateway.ts", "tests": ["tests/adapters/cc-gateways.test.ts"], "contracts": [] }
   ]
 }

@@ -1,5 +1,8 @@
 import { fail, ok, type Result } from '../../shared/result.ts';
 import type { AdoptionDecision, IntegrationSource, IntegrationStatus, Verdict } from './model.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:7fcb972e */
+import augurContract_63bfb30b from '../../../contracts/plan-decision.contract.ts'; /* augur-inject:contract-predicate:7e6af438 */
+import augurContract_755b316d from '../../../contracts/apply-integration-report.contract.ts'; /* augur-inject:contract-predicate:ead282b2 */
 
 export interface DecisionDraft {
   readonly projectCode: string;
@@ -68,6 +71,8 @@ export function planDecision(
     decidedAt: stamp.at,
   });
 }
+// @ts-expect-error augur-inject
+planDecision = contract(planDecision, { ...augurContract_63bfb30b, contractId: 'C-7', mode: 'observe', sample: 1, where: 'src/adoption-decisions/domain/decision-rules.ts:28', rule: 'contract-wrap', id: '63bfb30b' }); /* augur-inject:contract-wrap:63bfb30b */
 
 export interface IntegrationReport {
   readonly decisionId: string;
@@ -89,6 +94,8 @@ export function applyIntegrationReport(decision: AdoptionDecision, report: Integ
       : { state: 'integration_failed', source: report.source, detail: report.detail ?? report.ref, reportedAt: at };
   return ok({ ...decision, integration });
 }
+// @ts-expect-error augur-inject
+applyIntegrationReport = contract(applyIntegrationReport, { ...augurContract_755b316d, contractId: 'C-8', mode: 'observe', sample: 1, where: 'src/adoption-decisions/domain/decision-rules.ts:82', rule: 'contract-wrap', id: '755b316d' }); /* augur-inject:contract-wrap:755b316d */
 
 export function describeIntegration(status: IntegrationStatus): string {
   switch (status.state) {

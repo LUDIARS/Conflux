@@ -1,6 +1,8 @@
 import type { RatingScale } from '../../project-workspaces/domain/model.ts';
 import { fail, ok, type Result } from '../../shared/result.ts';
 import type { PlayedBuildRef, Rating } from './model.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:63c2fb00 */
+import augurContract_1684ff8c from '../../../contracts/summarize-ratings.contract.ts'; /* augur-inject:contract-predicate:45a847df */
 
 export interface RatingDraft {
   readonly projectCode: string;
@@ -74,3 +76,5 @@ export function summarizeRatings(ratings: readonly Rating[], currentBuildId: str
     ratings.filter((r) => r.playedBuild.buildId === s.buildId).reduce((m, r) => (r.createdAt > m ? r.createdAt : m), '');
   return summaries.sort((a, b) => (a.isCurrent !== b.isCurrent ? (a.isCurrent ? -1 : 1) : latestOf(a) < latestOf(b) ? 1 : -1));
 }
+// @ts-expect-error augur-inject
+summarizeRatings = contract(summarizeRatings, { ...augurContract_1684ff8c, contractId: 'C-6', mode: 'observe', sample: 1, where: 'src/play-feedback/domain/rating-rules.ts:52', rule: 'contract-wrap', id: '1684ff8c' }); /* augur-inject:contract-wrap:1684ff8c */

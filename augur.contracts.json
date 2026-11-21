@@ -1,7 +1,8 @@
 {
   "version": 1,
   "contractsDir": "contracts",
-  "importFrom": "@ludiars/log-weaver",
+  "importFrom": "#augur-contract-runtime",
+  "runtimeFile": "contracts/runtime.ts",
   "contracts": [
     { "id": "C-1", "criterion": "C-1 planVariant(tides, variants, draft): 同じ潮流に同じ識別名の亜流があれば作成を拒否し、同一プロジェクト内の複数潮流・亜流を区別する (CF-FLOW-001)", "symbol": "planVariant", "file": "src/evolution-streams/domain/flow-rules.ts", "module": "./contracts/plan-variant.contract.ts", "mode": "observe", "sample": 1 },
     { "id": "C-2", "criterion": "C-2 applyRuleChanges(rules, changes): 変更前の内容が亜流の現在ルールと一致しない変更を拒否し、別亜流の変更履歴を上書きしない (CF-FLOW-001)", "symbol": "applyRuleChanges", "file": "src/evolution-streams/domain/flow-rules.ts", "module": "./contracts/apply-rule-changes.contract.ts", "mode": "observe", "sample": 1 },
@@ -20,6 +21,9 @@
     { "id": "C-15", "criterion": "C-15 projectViewHref(projectCode, state, patch): Web の表示切替・タブ・拡大率・流れ一覧のリンクは選択中の亜流 id を保持し、同じプロジェクトから出ない (CF-WEB-001)", "symbol": "projectViewHref", "file": "src/adapters/http/html/view-state.ts", "module": "./contracts/project-view-href.contract.ts", "mode": "observe", "sample": 1 },
     { "id": "C-16", "criterion": "C-16 resolveCcBaseUrl(env): CONFLUX_CC_URL の明示値を優先し、無ければ Excubitor が注入する CONCORDIA_URL を使い、どちらも無ければ起動を失敗させる (CF-OPS-001)", "symbol": "resolveCcBaseUrl", "file": "src/adapters/config/cc-url.ts", "module": "./contracts/resolve-cc-base-url.contract.ts", "mode": "observe", "sample": 1 },
     { "id": "C-17", "criterion": "C-17 admitWebRequest(headers, access): 許可外の Host、または完全一致集合に無い Origin の要求を 403 で拒否し、許可された要求は拒否しない (CF-OPS-001)", "symbol": "admitWebRequest", "file": "src/adapters/http/host-origin-guard.ts", "module": "./contracts/admit-web-request.contract.ts", "mode": "observe", "sample": 1 },
-    { "id": "C-18", "criterion": "C-18 describeHealth(config, startedAt): health は生存だけを示し、Cc 到達性を未確認とし、未設定の Cc 経路・デプロイを未接続として返す (CF-OPS-001)", "symbol": "describeHealth", "file": "src/adapters/http/health.ts", "module": "./contracts/describe-health.contract.ts", "mode": "observe", "sample": 1 }
+    { "id": "C-18", "criterion": "C-18 describeHealth(config, startedAt): health は生存だけを示し、Cc 到達性を未確認とし、未設定の Cc 経路・デプロイを未接続として返す (CF-OPS-001)", "symbol": "describeHealth", "file": "src/adapters/http/health.ts", "module": "./contracts/describe-health.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-19", "criterion": "C-19 adoptionSignal(decision): 採否記録の ID・対象・主体・判断時刻を保持し、判定と理由を 2000 文字以内で伝える", "symbol": "adoptionSignal", "file": "src/cc-management-feed/domain/outcome-signals.ts", "module": "./contracts/adoption-signal.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-20", "criterion": "C-20 buildSignal(build): 終端ビルドだけを通知し、記録の ID・対象・状態・更新時刻と system の出所を保持する", "symbol": "buildSignal", "file": "src/cc-management-feed/domain/outcome-signals.ts", "module": "./contracts/build-signal.contract.ts", "mode": "observe", "sample": 1 },
+    { "id": "C-21", "criterion": "C-21 playtestSignal(result): 試遊結果の ID・対象・主体・観測時刻を保持し、対象ビルドと要約を 2000 文字以内で伝える", "symbol": "playtestSignal", "file": "src/cc-management-feed/domain/outcome-signals.ts", "module": "./contracts/playtest-signal.contract.ts", "mode": "observe", "sample": 1 }
   ]
 }

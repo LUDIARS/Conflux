@@ -2,6 +2,8 @@ import type { BuildSettings } from '../../project-workspaces/domain/model.ts';
 import { fail, ok, type Result } from '../../shared/result.ts';
 import type { ExternalOutcome } from '../../shared/external-outcome.ts';
 import type { Build, BuildOrigin } from './model.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:9e62d5ec */
+import augurContract_56928e18 from '../../../contracts/plan-flow-build.contract.ts'; /* augur-inject:contract-predicate:392a6b6f */
 
 export interface BuildTarget {
   readonly projectCode: string;
@@ -54,6 +56,8 @@ export function planFlowBuild(
     },
   });
 }
+// @ts-expect-error augur-inject
+planFlowBuild = contract(planFlowBuild, { ...augurContract_56928e18, contractId: 'C-12', mode: 'observe', sample: 1, where: 'src/playable-results/domain/build-requests.ts:29', rule: 'contract-wrap', id: '56928e18' }); /* augur-inject:contract-wrap:56928e18 */
 
 /**
  * A rerun is an explicit human decision made after reading the failure; it is allowed only

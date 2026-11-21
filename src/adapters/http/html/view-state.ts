@@ -1,4 +1,6 @@
 import { DEFAULT_ZOOM, formatGraphZoom, parseGraphZoom, type GraphZoom } from './graph-zoom.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:48c72619 */
+import augurContract_836d01a9 from '../../../../contracts/project-view-href.contract.ts'; /* augur-inject:contract-predicate:a8f559cb */
 
 /** Detail sections of the selected variant, in navigation order. */
 export const DETAIL_TABS = [
@@ -65,6 +67,8 @@ export function projectViewHref(projectCode: string, state: ProjectViewState, pa
   const qs = params.toString();
   return `/projects/${encodeURIComponent(projectCode)}${qs ? `?${qs}` : ''}`;
 }
+// @ts-expect-error augur-inject
+projectViewHref = contract(projectViewHref, { ...augurContract_836d01a9, contractId: 'C-15', mode: 'observe', sample: 1, where: 'src/adapters/http/html/view-state.ts:56', rule: 'contract-wrap', id: '836d01a9' }); /* augur-inject:contract-wrap:836d01a9 */
 
 /**
  * Where a form post returns to (Post/Redirect/Get): the same variant on the detail pane and the tab

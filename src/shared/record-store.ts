@@ -28,6 +28,7 @@ export type CollectionName =
   | 'selections'
   | 'builds'
   | 'artifacts'
+  | 'playtestResults'
   | 'deployments'
   | 'signals';
 
@@ -43,6 +44,7 @@ export const COLLECTION_NAMES: readonly CollectionName[] = [
   'selections',
   'builds',
   'artifacts',
+  'playtestResults',
   'deployments',
   'signals',
 ];

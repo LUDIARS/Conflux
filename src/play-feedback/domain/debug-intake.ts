@@ -1,6 +1,8 @@
 import { fail, ok, type Result } from '../../shared/result.ts';
 import { bindPlayedBuild, type BuildFacts, type VariantFacts } from './comment-rules.ts';
 import type { PlayedBuildRef } from './model.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:4cd3820c */
+import augurContract_dad1d15c from '../../../contracts/admit-debug-post.contract.ts'; /* augur-inject:contract-predicate:a72a173d */
 
 /** What a game's debug screen claims about the build it is running. */
 export interface DebugBuildClaim {
@@ -35,3 +37,5 @@ export function admitDebugPost(input: {
   }
   return ok({ variant, playedBuild: bound.value });
 }
+// @ts-expect-error augur-inject
+admitDebugPost = contract(admitDebugPost, { ...augurContract_dad1d15c, contractId: 'C-5', mode: 'observe', sample: 1, where: 'src/play-feedback/domain/debug-intake.ts:18', rule: 'contract-wrap', id: 'dad1d15c' }); /* augur-inject:contract-wrap:dad1d15c */

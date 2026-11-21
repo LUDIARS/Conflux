@@ -2,6 +2,8 @@ import type { DeploySettings } from '../../project-workspaces/domain/model.ts';
 import type { ExternalOutcome } from '../../shared/external-outcome.ts';
 import { fail, ok, type Result } from '../../shared/result.ts';
 import type { Artifact, Build, Deployment } from './model.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:98cbd640 */
+import augurContract_54f3ca47 from '../../../contracts/authorize-deploy.contract.ts'; /* augur-inject:contract-predicate:6c597f3c */
 
 /** Identity as verified by Cc at request time. Cc is the source of truth for roles. */
 export type IdentityVerification =
@@ -60,6 +62,8 @@ export function authorizeDeploy(input: {
   }
   return ok({ actorId: identity.actorId, actorRoles: identity.roles, artifact, build, environment: command.environment });
 }
+// @ts-expect-error augur-inject
+authorizeDeploy = contract(authorizeDeploy, { ...augurContract_54f3ca47, contractId: 'C-13', mode: 'observe', sample: 1, where: 'src/playable-results/domain/deploy-authorization.ts:34', rule: 'contract-wrap', id: '54f3ca47' }); /* augur-inject:contract-wrap:54f3ca47 */
 
 export function newDeployment(auth: AuthorizedDeploy, stamp: { readonly id: string; readonly at: string }): Deployment {
   return {

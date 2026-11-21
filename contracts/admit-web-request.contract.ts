@@ -1,5 +1,5 @@
 import type { admitWebRequest } from '../src/adapters/http/host-origin-guard.ts';
-import { matchesHost } from '../src/adapters/http/host-origin-guard.ts';
+import { matchesHost } from '../src/adapters/http/host-matching.ts';
 import type { ContractOf } from './contract-types.ts';
 
 /** C-17: a request passes only with an allowed Host and, when present, an Origin in the exact set. */

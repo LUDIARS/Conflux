@@ -1,0 +1,12 @@
+{
+  "service": "conflux",
+  "runtime": { "autoImport": false },
+  "rules": {
+    "entry-runtime": false,
+    "silent-catch": false,
+    "spawn-watch": false,
+    "interval-guard": false,
+    "listener-guard": false,
+    "contract-wrap": true
+  }
+}

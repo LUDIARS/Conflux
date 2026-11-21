@@ -8,9 +8,11 @@ export const SUMMARY_LIMIT = 2000;
 const MAX_BACKOFF_MS = 30 * 60 * 1000;
 const BASE_BACKOFF_MS = 15 * 1000;
 
-function clip(text: string): string {
+export function clip(text: string): string {
   const flat = text.replace(/\s+/g, ' ').trim();
-  return flat.length <= SUMMARY_LIMIT ? flat : `${flat.slice(0, SUMMARY_LIMIT - 1)}…`;
+  if (flat.length <= SUMMARY_LIMIT) return flat;
+  // The receiver counts UTF-16 units. Keep the last code point whole before the ellipsis.
+  return `${flat.slice(0, SUMMARY_LIMIT - 1).replace(/[\uD800-\uDBFF]$/u, '')}…`;
 }
 
 export function variantTarget(variantId: string): string {

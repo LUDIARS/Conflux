@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import { recordIntegration } from '../../../adoption-decisions/application/decision-use-cases.ts';
 import { ingestBuildEvent } from '../../../playable-results/application/build-use-cases.ts';
+import { recordPlaytestResult } from '../../../playable-results/application/playtest-use-case.ts';
 import type { ArtifactDelivery } from '../../../playable-results/domain/model.ts';
 import type { AppDeps } from '../app-deps.ts';
 import type { HttpRequest, HttpResponse } from '../http-types.ts';
@@ -59,6 +60,24 @@ export function registerHookApi(router: Router, deps: AppDeps): void {
         ...(reported ? { artifacts: reported } : {}),
       }),
     );
+  });
+
+  router.add('POST', '/api/hooks/playtest-results', async (req) => {
+    const denied = checkHookToken(req, deps.hookToken);
+    if (denied) return denied;
+    const b = readJson(req);
+    const origin = str(b, 'origin');
+    if (origin !== 'human' && origin !== 'ai' && origin !== 'system') throw new BadRequestError('origin must be human|ai|system');
+    return resultResponse(await recordPlaytestResult(deps, {
+      id: str(b, 'id'),
+      projectCode: str(b, 'projectCode'),
+      variantId: str(b, 'variantId'),
+      buildId: str(b, 'buildId'),
+      commit: str(b, 'commit'),
+      origin,
+      summary: str(b, 'summary'),
+      observedAt: str(b, 'observedAt'),
+    }));
   });
 
   router.add('POST', '/api/hooks/integration', async (req) => {

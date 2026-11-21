@@ -1,5 +1,7 @@
 import { mainlineBranchName, type BranchNamingPolicy } from './branch-naming.ts';
 import type { Tide, Variant } from './model.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:bcaa16d9 */
+import augurContract_36b3ee98 from '../../../contracts/project-flow-graph.contract.ts'; /* augur-inject:contract-predicate:7e98f71e */
 
 /**
  * Projection of flow state into a graph (CF-GRAPH-001). Merges point at the
@@ -79,3 +81,5 @@ export function projectFlowGraph(input: {
   }
   return { nodes, edges };
 }
+// @ts-expect-error augur-inject
+projectFlowGraph = contract(projectFlowGraph, { ...augurContract_36b3ee98, contractId: 'C-3', mode: 'observe', sample: 1, where: 'src/evolution-streams/domain/flow-graph.ts:41', rule: 'contract-wrap', id: '36b3ee98' }); /* augur-inject:contract-wrap:36b3ee98 */

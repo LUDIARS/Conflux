@@ -33,7 +33,7 @@ async function evidenceFor(deps: DecisionDeps, projectCode: string, variantId: s
   return undefined;
 }
 
-export async function decideAdoption(deps: DecisionDeps, draft: DecisionDraft): Promise<Result<AdoptionDecision>> {
+export async function decideAdoption(deps: DecisionDeps & SignalQueueDeps, draft: DecisionDraft): Promise<Result<AdoptionDecision>> {
   const ws = await requireWorkspace(deps.workspaces, draft.projectCode);
   if (!ws.ok) return ws;
   const variant = await requireVariant(deps.variants, draft.projectCode, draft.variantId);
@@ -46,6 +46,7 @@ export async function decideAdoption(deps: DecisionDeps, draft: DecisionDraft): 
   );
   if (!planned.ok) return planned;
   await deps.decisions.put(planned.value);
+  await queueStoredSignal(deps, adoptionSignal(planned.value));
   return planned;
 }
 
@@ -61,3 +62,5 @@ export async function recordIntegration(
   await deps.decisions.put(updated.value);
   return updated;
 }
+import { queueStoredSignal, type SignalQueueDeps } from '../../cc-management-feed/application/signal-use-cases.ts';
+import { adoptionSignal } from '../../cc-management-feed/domain/outcome-signals.ts';

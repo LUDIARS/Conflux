@@ -10,6 +10,8 @@ import type {
   SpawnDestination,
   SpawnDestinationKind,
 } from './model.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:3d0ed517 */
+import augurContract_21a0af52 from '../../../contracts/plan-workspace.contract.ts'; /* augur-inject:contract-predicate:2bb9d871 */
 
 export interface WorkspaceSettingsInput {
   readonly projectCode: string;
@@ -151,6 +153,8 @@ export function planWorkspace(
     updatedAt: now,
   });
 }
+// @ts-expect-error augur-inject
+planWorkspace = contract(planWorkspace, { ...augurContract_21a0af52, contractId: 'C-9', mode: 'observe', sample: 1, where: 'src/project-workspaces/domain/workspace-rules.ts:102', rule: 'contract-wrap', id: '21a0af52' }); /* augur-inject:contract-wrap:21a0af52 */
 
 export function requireBranchNaming(ws: ProjectWorkspace): Result<BranchNamingPolicy> {
   return ws.branchNaming

@@ -26,7 +26,7 @@ Cf Flow の起点は明示された例外として選択した亜流の本流を
 
 | 用途 | Cc API | Cf adapter |
 |---|---|---|
-| 意見・評価の通知 | `POST /v1/management/events` `{event_key, source:"cf", kind, project_code, target_key, origin, summary, observed_at}` | `src/adapters/cc/cc-management-events-gateway.ts` |
+| 意見・評価・採否・ビルド結果・試遊結果の通知 | `POST /v1/management/events` `{event_key, source:"cf", kind, project_code, target_key, origin, summary, observed_at}` | `src/adapters/cc/cc-management-events-gateway.ts` |
 
 - event_key で冪等。outbox から同じキーで再送する。詳細は [cc-management-feed](../feature/cc-management-feed.md)。
 - AI 要約は `origin=ai`。Cc は AI 由来だけを根拠にした依頼を拒否する。

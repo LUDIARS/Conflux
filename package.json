@@ -4,6 +4,9 @@
   "private": true,
   "description": "Conflux (Cf): CDGD flow workspace — tides/variants graph, play feedback, adoption decisions, Cc spawn, playable results.",
   "type": "module",
+  "imports": {
+    "#augur-contract-runtime": "./contracts/runtime.ts"
+  },
   "engines": {
     "node": ">=24"
   },

@@ -47,6 +47,7 @@ export function emptySnapshot(): Snapshot {
     selections: [],
     builds: [],
     artifacts: [],
+    playtestResults: [],
     deployments: [],
     signals: [],
   };

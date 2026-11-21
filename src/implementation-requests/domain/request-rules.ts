@@ -3,6 +3,8 @@ import type { SpawnDestination } from '../../project-workspaces/domain/model.ts'
 import type { ExternalOutcome } from '../../shared/external-outcome.ts';
 import { fail, ok, type Result } from '../../shared/result.ts';
 import type { ImplementationRequest, SpawnAccepted, SpawnLookup } from './model.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:9f18b316 */
+import augurContract_f6d9ab73 from '../../../contracts/next-spawn-action.contract.ts'; /* augur-inject:contract-predicate:aeb11f7a */
 
 export interface RequestDraft {
   readonly projectCode: string;
@@ -100,6 +102,8 @@ export function nextSpawnAction(request: ImplementationRequest): SpawnAction {
       return 'none';
   }
 }
+// @ts-expect-error augur-inject
+nextSpawnAction = contract(nextSpawnAction, { ...augurContract_f6d9ab73, contractId: 'C-10', mode: 'observe', sample: 1, where: 'src/implementation-requests/domain/request-rules.ts:90', rule: 'contract-wrap', id: 'f6d9ab73' }); /* augur-inject:contract-wrap:f6d9ab73 */
 
 export function markRequested(request: ImplementationRequest, at: string): ImplementationRequest {
   return { ...request, state: 'requested', updatedAt: at };

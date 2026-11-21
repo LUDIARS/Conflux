@@ -1,6 +1,9 @@
 import { fail, ok, type Result } from '../../shared/result.ts';
 import type { GitReference, RuleChange, RuleEntry, Revision, Tide, Variant } from './model.ts';
 import { validateSlug } from './slug.ts';
+import { contract } from '#augur-contract-runtime'; /* augur-inject:import:35b2b7f9 */
+import augurContract_1d893b91 from '../../../contracts/plan-variant.contract.ts'; /* augur-inject:contract-predicate:6a53c797 */
+import augurContract_dc46b210 from '../../../contracts/apply-rule-changes.contract.ts'; /* augur-inject:contract-predicate:e6cd82a6 */
 
 export interface TideDraft {
   readonly projectCode: string;
@@ -107,6 +110,8 @@ export function planVariant(
     createdAt: stamp.at,
   });
 }
+// @ts-expect-error augur-inject
+planVariant = contract(planVariant, { ...augurContract_1d893b91, contractId: 'C-1', mode: 'observe', sample: 1, where: 'src/evolution-streams/domain/flow-rules.ts:71', rule: 'contract-wrap', id: '1d893b91' }); /* augur-inject:contract-wrap:1d893b91 */
 
 /**
  * Applies rule changes to one variant's rule set. `before` must match the current text,
@@ -131,6 +136,8 @@ export function applyRuleChanges(rules: readonly RuleEntry[], changes: readonly 
   }
   return ok([...next.entries()].map(([key, text]) => ({ key, text })));
 }
+// @ts-expect-error augur-inject
+applyRuleChanges = contract(applyRuleChanges, { ...augurContract_dc46b210, contractId: 'C-2', mode: 'observe', sample: 1, where: 'src/evolution-streams/domain/flow-rules.ts:116', rule: 'contract-wrap', id: 'dc46b210' }); /* augur-inject:contract-wrap:dc46b210 */
 
 export function planRevision(
   variant: Variant,

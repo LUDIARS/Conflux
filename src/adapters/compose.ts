@@ -6,6 +6,7 @@ import type { SelectionRecord } from '../flow-isolation/domain/selection-record.
 import type { ImplementationRequest } from '../implementation-requests/domain/model.ts';
 import type { Comment, Rating } from '../play-feedback/domain/model.ts';
 import type { Artifact, Build, Deployment } from '../playable-results/domain/model.ts';
+import type { PlaytestResult } from '../playable-results/domain/playtest-result.ts';
 import type { ProjectWorkspace } from '../project-workspaces/domain/model.ts';
 import type { CcProjectRegistry } from '../project-workspaces/ports.ts';
 import type { CcHarnessGateway } from '../flow-isolation/ports.ts';
@@ -39,6 +40,7 @@ export function composeDeps(db: Database, gateways: Gateways, runtime: { readonl
     selections: db.collection<SelectionRecord>('selections'),
     builds: db.collection<Build>('builds'),
     artifacts: db.collection<Artifact>('artifacts'),
+    playtestResults: db.collection<PlaytestResult>('playtestResults'),
     deployments: db.collection<Deployment>('deployments'),
     signals: db.collection<OutboxEntry>('signals'),
     ...gateways,

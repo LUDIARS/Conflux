@@ -6,6 +6,7 @@ import type { RequestDeps } from '../../implementation-requests/application/requ
 import type { FeedbackDeps } from '../../play-feedback/application/feedback-use-cases.ts';
 import type { BuildDeps } from '../../playable-results/application/build-use-cases.ts';
 import type { DeployDeps } from '../../playable-results/application/deploy-use-cases.ts';
+import type { PlaytestDeps } from '../../playable-results/application/playtest-use-case.ts';
 import type { WorkspaceDeps } from '../../project-workspaces/application/workspace-use-cases.ts';
 import type { CcProjectRegistry } from '../../project-workspaces/ports.ts';
 
@@ -17,6 +18,7 @@ export type AppDeps = WorkspaceDeps &
   RequestDeps &
   BuildDeps &
   DeployDeps &
+  PlaytestDeps &
   DecisionDeps &
   SignalDeps & {
     readonly registry: CcProjectRegistry;

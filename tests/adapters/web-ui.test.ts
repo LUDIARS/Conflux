@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { Script } from 'node:vm';
 import projectViewHrefContract from '../../contracts/project-view-href.contract.ts';
 import { createApp } from '../../src/adapters/http/create-app.ts';
 import { CLIENT_SCRIPT } from '../../src/adapters/http/html/client-script.ts';
@@ -229,7 +230,7 @@ describe('web project page (CF-WEB-001)', () => {
 
 describe('web assets (CF-WEB-001)', () => {
   it('ships a helper script that parses and cannot close its own tag', () => {
-    assert.doesNotThrow(() => new Function(CLIENT_SCRIPT));
+    assert.doesNotThrow(() => new Script(CLIENT_SCRIPT));
     assert.doesNotMatch(CLIENT_SCRIPT, /<\/script/i);
     assert.doesNotMatch(CLIENT_SCRIPT, /fetch\(|XMLHttpRequest/);
   });
