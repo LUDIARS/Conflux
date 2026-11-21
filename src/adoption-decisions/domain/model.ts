@@ -1,4 +1,12 @@
 export type Verdict = 'adopted' | 'declined';
+export type AutomaticVerdict = 'adopt' | 'hold' | 'reject';
+
+export interface AutomaticDecisionTrace {
+  readonly verdict: AutomaticVerdict;
+  readonly fingerprint: string;
+  readonly playtestIds: readonly string[];
+  readonly ratingIds: readonly string[];
+}
 
 export type IntegrationSource = 'cc' | 'revisor' | 'github';
 
@@ -24,10 +32,12 @@ export interface AdoptionDecision {
   readonly projectCode: string;
   readonly tideId: string;
   readonly variantId: string;
-  readonly verdict: Verdict;
+  readonly verdict: Verdict | 'held';
   readonly target: AdoptionTarget;
   readonly reason: string;
   readonly decidedBy: string;
+  readonly origin?: 'human' | 'ai' | 'system';
+  readonly automation?: AutomaticDecisionTrace;
   readonly relatedCommentIds: readonly string[];
   /** Rating summary text visible at decision time, kept so later rating changes do not rewrite history. */
   readonly ratingDigest?: string;

@@ -15,7 +15,7 @@ export function adoptionSignal(decision: AdoptionDecision): ManagementSignal {
     kind: 'adoption',
     projectCode: decision.projectCode,
     targetKey: variantTarget(decision.variantId),
-    origin: 'human',
+    origin: decision.origin ?? 'human',
     summary: clip(`${decision.verdict} ${decision.reason} (${decision.decidedBy})${version}`),
     observedAt: decision.decidedAt,
   };

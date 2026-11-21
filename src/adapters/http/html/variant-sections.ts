@@ -126,7 +126,7 @@ export function decisionsSection(d: VariantDetail): string {
     .reverse()
     .map(
       (x) =>
-        `<tr><td>${esc(x.decidedAt)}</td><td>${x.verdict === 'adopted' ? '採用' : '見送り'}</td><td>${esc(x.target.commit ?? '—')}</td><td>${esc(x.reason)}</td><td>${esc(x.decidedBy)}</td><td>${esc(describeIntegration(x.integration))}</td></tr>`,
+        `<tr><td>${esc(x.decidedAt)}</td><td>${{ adopted: '採用', declined: '見送り', held: '保留' }[x.verdict]}</td><td>${esc(x.target.commit ?? '—')}</td><td>${esc(x.reason)}</td><td>${esc(x.decidedBy)}</td><td>${esc(describeIntegration(x.integration))}</td></tr>`,
     )
     .join('');
   return `<section><h3>合流判断の履歴</h3><div class="table-scroll"><table><tr><th>日時</th><th>判断</th><th>版</th><th>理由</th><th>判断者</th><th>コード統合</th></tr>${rows || '<tr><td colspan="6" class="muted">なし</td></tr>'}</table></div></section>`;

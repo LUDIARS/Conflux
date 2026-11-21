@@ -80,6 +80,11 @@
     { "source": "contracts/adoption-signal.contract.ts", "tests": ["tests/cc-management-feed/outcome-intake.test.ts"], "contracts": ["C-19"] },
     { "source": "contracts/build-signal.contract.ts", "tests": ["tests/cc-management-feed/outcome-signals.test.ts"], "contracts": ["C-20"] },
     { "source": "contracts/playtest-signal.contract.ts", "tests": ["tests/cc-management-feed/outcome-signals.test.ts"], "contracts": ["C-21"] },
-    { "source": "src/adapters/cc/cc-management-events-gateway.ts", "tests": ["tests/adapters/cc-gateways.test.ts"], "contracts": [] }
+    { "source": "src/adapters/cc/cc-management-events-gateway.ts", "tests": ["tests/adapters/cc-gateways.test.ts"], "contracts": [] },
+    { "source": "src/adapters/http/api/autonomous-adoption-api.ts", "tests": ["tests/adapters/autonomous-adoption-api.test.ts"], "contracts": [] },
+    { "source": "src/evolution-streams/domain/proposal-rules.ts", "tests": ["tests/adapters/autonomous-adoption-api.test.ts"], "contracts": ["C-22"] },
+    { "source": "src/adoption-decisions/domain/auto-adoption-rules.ts", "tests": ["tests/adoption-decisions/auto-adoption-rules.test.ts"], "contracts": ["C-23"] },
+    { "source": "src/adoption-decisions/domain/auto-decision.ts", "tests": ["tests/adapters/autonomous-adoption-api.test.ts"], "contracts": ["C-24"] },
+    { "source": "src/adoption-decisions/application/auto-evaluate.ts", "tests": ["tests/adapters/autonomous-adoption-api.test.ts"], "contracts": [] }
   ]
 }

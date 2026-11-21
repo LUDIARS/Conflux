@@ -1,3 +1,4 @@
+import { serialByKey } from '../../shared/serial-by-key.ts';
 import type { RecordStore } from '../../shared/record-store.ts';
 import { fail, ok, type Result } from '../../shared/result.ts';
 import type { Clock } from '../../shared/runtime.ts';
@@ -12,11 +13,13 @@ export interface WorkspaceDeps {
 }
 
 export async function configureWorkspace(deps: WorkspaceDeps, input: WorkspaceSettingsInput): Promise<Result<ProjectWorkspace>> {
-  const existing = await deps.workspaces.get(input.projectCode);
-  const planned = planWorkspace(existing, input, deps.clock.now());
-  if (!planned.ok) return planned;
-  await deps.workspaces.put(planned.value);
-  return planned;
+  return serialByKey(deps.workspaces, input.projectCode, async () => {
+    const existing = await deps.workspaces.get(input.projectCode);
+    const planned = planWorkspace(existing, input, deps.clock.now());
+    if (!planned.ok) return planned;
+    await deps.workspaces.put(planned.value);
+    return planned;
+  });
 }
 
 export async function requireWorkspace(
@@ -32,11 +35,13 @@ export async function refreshFlowObservation(
   deps: WorkspaceDeps & { readonly registry: CcProjectRegistry },
   projectCode: string,
 ): Promise<Result<ProjectWorkspace>> {
-  const ws = await requireWorkspace(deps.workspaces, projectCode);
-  if (!ws.ok) return ws;
-  const lookup = await deps.registry.lookup(ws.value.ccProjectCode);
-  const now = deps.clock.now();
-  const updated: ProjectWorkspace = { ...ws.value, flowObservation: observeFlowFlag(lookup, now), updatedAt: now };
-  await deps.workspaces.put(updated);
-  return ok(updated);
+  return serialByKey(deps.workspaces, projectCode, async () => {
+    const ws = await requireWorkspace(deps.workspaces, projectCode);
+    if (!ws.ok) return ws;
+    const lookup = await deps.registry.lookup(ws.value.ccProjectCode);
+    const now = deps.clock.now();
+    const updated: ProjectWorkspace = { ...ws.value, flowObservation: observeFlowFlag(lookup, now), updatedAt: now };
+    await deps.workspaces.put(updated);
+    return ok(updated);
+  });
 }

@@ -1,23 +1,12 @@
-import { timingSafeEqual } from 'node:crypto';
 import { recordIntegration } from '../../../adoption-decisions/application/decision-use-cases.ts';
 import { ingestBuildEvent } from '../../../playable-results/application/build-use-cases.ts';
 import { recordPlaytestResult } from '../../../playable-results/application/playtest-use-case.ts';
 import type { ArtifactDelivery } from '../../../playable-results/domain/model.ts';
 import type { AppDeps } from '../app-deps.ts';
-import type { HttpRequest, HttpResponse } from '../http-types.ts';
-import { BadRequestError, bearerToken, optStr, readJson, str } from '../request-parsing.ts';
-import { jsonResponse, resultResponse } from '../responses.ts';
+import { checkHookToken } from '../hook-auth.ts';
+import { BadRequestError, optStr, readJson, str } from '../request-parsing.ts';
+import { resultResponse } from '../responses.ts';
 import type { Router } from '../router.ts';
-
-/** Hook intake requires the shared token; without a configured token the intake is closed. */
-function checkHookToken(req: HttpRequest, expected: string | undefined): HttpResponse | undefined {
-  if (!expected) return jsonResponse(503, { error: 'hook_intake_not_configured', message: 'CONFLUX_HOOK_TOKEN が未設定のため Cc フックを受け付けません' });
-  const given = bearerToken(req) ?? '';
-  const a = Buffer.from(given);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length || !timingSafeEqual(a, b)) return jsonResponse(401, { error: 'unauthenticated' });
-  return undefined;
-}
 
 function artifacts(value: unknown) {
   if (value === undefined) return undefined;
@@ -68,6 +57,11 @@ export function registerHookApi(router: Router, deps: AppDeps): void {
     const b = readJson(req);
     const origin = str(b, 'origin');
     if (origin !== 'human' && origin !== 'ai' && origin !== 'system') throw new BadRequestError('origin must be human|ai|system');
+    const { outcome, criticalBug } = b;
+    if ((outcome !== undefined || criticalBug !== undefined)
+      && ((outcome !== 'passed' && outcome !== 'failed') || typeof criticalBug !== 'boolean')) {
+      throw new BadRequestError('outcome and criticalBug must be provided together as passed|failed and boolean');
+    }
     return resultResponse(await recordPlaytestResult(deps, {
       id: str(b, 'id'),
       projectCode: str(b, 'projectCode'),
@@ -77,6 +71,7 @@ export function registerHookApi(router: Router, deps: AppDeps): void {
       origin,
       summary: str(b, 'summary'),
       observedAt: str(b, 'observedAt'),
+      ...(outcome === undefined ? {} : { outcome, criticalBug: criticalBug as boolean }),
     }));
   });
 

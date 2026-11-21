@@ -1,3 +1,4 @@
+import { serialByKey } from '../../shared/serial-by-key.ts';
 import { requireWorkspace } from '../../project-workspaces/application/workspace-use-cases.ts';
 import type { ProjectWorkspace } from '../../project-workspaces/domain/model.ts';
 import type { RecordStore } from '../../shared/record-store.ts';
@@ -23,26 +24,30 @@ export interface FlowDeps {
 }
 
 export async function createTide(deps: FlowDeps, draft: TideDraft): Promise<Result<Tide>> {
-  const ws = await requireWorkspace(deps.workspaces, draft.projectCode);
-  if (!ws.ok) return ws;
-  const existing = await deps.tides.listByProject(draft.projectCode);
-  const planned = planTide(existing, draft, { id: deps.ids.next('tide'), at: deps.clock.now() });
-  if (!planned.ok) return planned;
-  await deps.tides.put(planned.value);
-  return planned;
+  return serialByKey(deps.workspaces, draft.projectCode, async () => {
+    const ws = await requireWorkspace(deps.workspaces, draft.projectCode);
+    if (!ws.ok) return ws;
+    const existing = await deps.tides.listByProject(draft.projectCode);
+    const planned = planTide(existing, draft, { id: deps.ids.next('tide'), at: deps.clock.now() });
+    if (!planned.ok) return planned;
+    await deps.tides.put(planned.value);
+    return planned;
+  });
 }
 
 export async function createVariant(deps: FlowDeps, draft: VariantDraft): Promise<Result<Variant>> {
-  const ws = await requireWorkspace(deps.workspaces, draft.projectCode);
-  if (!ws.ok) return ws;
-  const [tides, variants] = await Promise.all([
-    deps.tides.listByProject(draft.projectCode),
-    deps.variants.listByProject(draft.projectCode),
-  ]);
-  const planned = planVariant(tides, variants, draft, { id: deps.ids.next('variant'), at: deps.clock.now() });
-  if (!planned.ok) return planned;
-  await deps.variants.put(planned.value);
-  return planned;
+  return serialByKey(deps.workspaces, draft.projectCode, async () => {
+    const ws = await requireWorkspace(deps.workspaces, draft.projectCode);
+    if (!ws.ok) return ws;
+    const [tides, variants] = await Promise.all([
+      deps.tides.listByProject(draft.projectCode),
+      deps.variants.listByProject(draft.projectCode),
+    ]);
+    const planned = planVariant(tides, variants, draft, { id: deps.ids.next('variant'), at: deps.clock.now() });
+    if (!planned.ok) return planned;
+    await deps.variants.put(planned.value);
+    return planned;
+  });
 }
 
 export async function requireVariant(
@@ -65,11 +70,13 @@ export async function requireTide(tides: RecordStore<Tide>, projectCode: string,
 
 /** Appends a revision to one variant and applies its rule changes to that variant only. */
 export async function recordRevision(deps: FlowDeps, draft: RevisionDraft): Promise<Result<Revision>> {
-  const variant = await requireVariant(deps.variants, draft.projectCode, draft.variantId);
-  if (!variant.ok) return variant;
-  const planned = planRevision(variant.value, draft, { id: deps.ids.next('rev'), at: deps.clock.now() });
-  if (!planned.ok) return planned;
-  await deps.revisions.put(planned.value.revision);
-  await deps.variants.put(planned.value.variant);
-  return ok(planned.value.revision);
+  return serialByKey(deps.workspaces, draft.projectCode, async () => {
+    const variant = await requireVariant(deps.variants, draft.projectCode, draft.variantId);
+    if (!variant.ok) return variant;
+    const planned = planRevision(variant.value, draft, { id: deps.ids.next('rev'), at: deps.clock.now() });
+    if (!planned.ok) return planned;
+    await deps.revisions.put(planned.value.revision);
+    await deps.variants.put(planned.value.variant);
+    return ok(planned.value.revision);
+  });
 }

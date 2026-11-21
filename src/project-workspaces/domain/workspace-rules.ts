@@ -147,6 +147,7 @@ export function planWorkspace(
     build: settledBuild,
     deploy: settledDeploy,
     debugIntake: input.debugIntake,
+    ...(existing?.autonomousAdoption ? { autonomousAdoption: existing.autonomousAdoption } : {}),
     // Observation belongs to Cc; configuring Cf never flips it.
     flowObservation: existing?.flowObservation ?? { state: 'unknown', reason: 'Cc 未照会' },
     createdAt: existing?.createdAt ?? now,

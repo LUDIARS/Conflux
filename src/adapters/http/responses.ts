@@ -14,7 +14,7 @@ export function redirect(location: string): HttpResponse {
 }
 
 const FORBIDDEN = new Set(['forbidden', 'role_mapping_undecided', 'conflux_flow_not_enabled']);
-const CONFLICT = new Set(['duplicate_tide', 'duplicate_variant', 'rule_conflict', 'playtest_result_conflict']);
+const CONFLICT = new Set(['duplicate_tide', 'duplicate_variant', 'rule_conflict', 'playtest_result_conflict', 'variant_capacity_reached']);
 
 /** Maps a domain error code to an HTTP status. */
 export function statusOf(error: DomainError): number {

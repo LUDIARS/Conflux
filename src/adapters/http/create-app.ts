@@ -1,3 +1,4 @@
+import { registerAutonomousAdoptionApi } from './api/autonomous-adoption-api.ts';
 import { registerDecisionApi } from './api/decision-api.ts';
 import { registerFeedbackApi } from './api/feedback-api.ts';
 import { registerFlowApi } from './api/flow-api.ts';
@@ -20,5 +21,6 @@ export function createApp(deps: AppDeps): Router {
   registerResultsApi(router, deps);
   registerDecisionApi(router, deps);
   registerHookApi(router, deps);
+  registerAutonomousAdoptionApi(router, deps);
   return router;
 }

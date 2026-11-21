@@ -25,6 +25,8 @@ export interface BranchPoint {
   readonly commit?: string;
 }
 
+export type ProposalOrigin = 'human' | 'ai' | 'system';
+
 export interface Variant {
   readonly id: string;
   readonly projectCode: string;
@@ -34,6 +36,7 @@ export interface Variant {
   readonly concept: string;
   readonly rules: readonly RuleEntry[];
   readonly branchedFrom?: BranchPoint;
+  readonly proposal?: { readonly id: string; readonly origin: ProposalOrigin; readonly evidence: readonly string[] };
   readonly createdAt: string;
 }
 

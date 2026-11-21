@@ -13,6 +13,7 @@ playable-results が持つ。Gen5 Step2 は Actio `actio:3363b4c3-d670-4f25-8c70
   (`signals` コレクション) に積む。キーは `cf:comment:<id>` / `cf:rating:<id>` で、同じ記録は 1 回だけ積む。
 - 採否は `kind=adoption`、`cf:adoption:<decisionId>`、現行の人間判断は `origin=human`。
   REST API と Web フォームの双方で、判断・理由・判断者と対象コミット（指定時）を伝え、判断時刻を使う。
+  [自動採否](autonomous-adoption.md) は同じ契約を使い、`origin=system` で採用・保留・棄却を通知する。
 - 終端ビルドは `kind=build`、`cf:build:<buildId>`、`origin=system`。成功・失敗と対象コミット、
   失敗概要（報告時）を伝え、保存した終端状態の更新時刻を使う。進行中や古いイベントは通知対象から外す。
 - 試遊結果は `kind=playtest`、`cf:playtest:<resultId>`。報告の `human` / `ai` / `system`、

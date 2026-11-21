@@ -7,7 +7,7 @@ import augurContract_755b316d from '../../../contracts/apply-integration-report.
 export interface DecisionDraft {
   readonly projectCode: string;
   readonly variantId: string;
-  readonly verdict: Verdict;
+  readonly verdict: Verdict | 'held';
   readonly commit?: string;
   readonly reason: string;
   readonly decidedBy: string;
@@ -112,7 +112,8 @@ export function describeIntegration(status: IntegrationStatus): string {
 
 /** Official-rules lineage: adopted decisions, newest first. Declines are kept but not official. */
 export function officialLineage(decisions: readonly AdoptionDecision[]): readonly AdoptionDecision[] {
+  const manualVariants = new Set(decisions.filter((entry) => !entry.automation).map((entry) => entry.variantId));
   return decisions
-    .filter((d) => d.verdict === 'adopted')
+    .filter((d) => d.verdict === 'adopted' && (!d.automation || d.integration.state === 'integrated' || !manualVariants.has(d.variantId)))
     .sort((a, b) => (a.decidedAt < b.decidedAt ? 1 : a.decidedAt > b.decidedAt ? -1 : 0));
 }

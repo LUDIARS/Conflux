@@ -14,7 +14,7 @@ export interface SignalDeps {
 
 export type SignalQueueDeps = Pick<SignalDeps, 'signals' | 'clock'>;
 
-async function queueSignal(deps: SignalQueueDeps, signal: ManagementSignal, now: string): Promise<void> {
+export async function queueSignal(deps: SignalQueueDeps, signal: ManagementSignal, now: string): Promise<void> {
   await serialByKey(deps.signals, signal.eventKey, async () => {
     if (await deps.signals.get(signal.eventKey)) return;
     await deps.signals.put(newEntry(signal, now));

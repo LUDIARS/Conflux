@@ -5,7 +5,7 @@ export default {
   post: (signal, decision) => (
     signal.eventKey === `cf:adoption:${decision.id}` && signal.kind === 'adoption'
     && signal.projectCode === decision.projectCode && signal.targetKey === `variant/${decision.variantId}`
-    && signal.origin === 'human' && signal.observedAt === decision.decidedAt
+    && signal.origin === (decision.origin ?? 'human') && signal.observedAt === decision.decidedAt
     && signal.summary.startsWith(`${decision.verdict} ${decision.reason.replace(/\s+/g, ' ').slice(0, 64)}`)
     && signal.summary.length <= 2000
   ) || 'adoption signal lost its saved decision context',

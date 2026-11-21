@@ -1,3 +1,6 @@
+import { queueStoredSignal, type SignalQueueDeps } from '../../cc-management-feed/application/signal-use-cases.ts';
+import { adoptionSignal } from '../../cc-management-feed/domain/outcome-signals.ts';
+import { serialByKey } from '../../shared/serial-by-key.ts';
 import { requireVariant } from '../../evolution-streams/application/flow-use-cases.ts';
 import type { Variant } from '../../evolution-streams/domain/model.ts';
 import type { Artifact, Build } from '../../playable-results/domain/model.ts';
@@ -34,20 +37,22 @@ async function evidenceFor(deps: DecisionDeps, projectCode: string, variantId: s
 }
 
 export async function decideAdoption(deps: DecisionDeps & SignalQueueDeps, draft: DecisionDraft): Promise<Result<AdoptionDecision>> {
-  const ws = await requireWorkspace(deps.workspaces, draft.projectCode);
-  if (!ws.ok) return ws;
-  const variant = await requireVariant(deps.variants, draft.projectCode, draft.variantId);
-  if (!variant.ok) return variant;
-  const evidence = await evidenceFor(deps, draft.projectCode, draft.variantId, draft.commit);
-  const planned = planDecision(
-    { variant: variant.value, ...(evidence ? { evidence } : {}) },
-    draft,
-    { id: deps.ids.next('decision'), at: deps.clock.now() },
-  );
-  if (!planned.ok) return planned;
-  await deps.decisions.put(planned.value);
-  await queueStoredSignal(deps, adoptionSignal(planned.value));
-  return planned;
+  return serialByKey(deps.workspaces, draft.projectCode, async () => {
+    const ws = await requireWorkspace(deps.workspaces, draft.projectCode);
+    if (!ws.ok) return ws;
+    const variant = await requireVariant(deps.variants, draft.projectCode, draft.variantId);
+    if (!variant.ok) return variant;
+    const evidence = await evidenceFor(deps, draft.projectCode, draft.variantId, draft.commit);
+    const planned = planDecision(
+      { variant: variant.value, ...(evidence ? { evidence } : {}) },
+      draft,
+      { id: deps.ids.next('decision'), at: deps.clock.now() },
+    );
+    if (!planned.ok) return planned;
+    await deps.decisions.put(planned.value);
+    await queueStoredSignal(deps, adoptionSignal(planned.value));
+    return planned;
+  });
 }
 
 /** Receives the integration fact from Cc/Rv/GitHub (via the Cc hook route). */
@@ -55,12 +60,12 @@ export async function recordIntegration(
   deps: DecisionDeps,
   input: IntegrationReport & { readonly projectCode: string },
 ): Promise<Result<AdoptionDecision>> {
-  const decision = await deps.decisions.get(input.decisionId);
-  if (!decision || decision.projectCode !== input.projectCode) return fail('decision_not_found', '合流判断がこのプロジェクトにありません');
-  const updated = applyIntegrationReport(decision, input, deps.clock.now());
-  if (!updated.ok) return updated;
-  await deps.decisions.put(updated.value);
-  return updated;
+  return serialByKey(deps.workspaces, input.projectCode, async () => {
+    const decision = await deps.decisions.get(input.decisionId);
+    if (!decision || decision.projectCode !== input.projectCode) return fail('decision_not_found', '合流判断がこのプロジェクトにありません');
+    const updated = applyIntegrationReport(decision, input, deps.clock.now());
+    if (!updated.ok) return updated;
+    await deps.decisions.put(updated.value);
+    return updated;
+  });
 }
-import { queueStoredSignal, type SignalQueueDeps } from '../../cc-management-feed/application/signal-use-cases.ts';
-import { adoptionSignal } from '../../cc-management-feed/domain/outcome-signals.ts';

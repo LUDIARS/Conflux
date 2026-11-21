@@ -1,4 +1,5 @@
 import type { BranchNamingPolicy } from '../../evolution-streams/domain/branch-naming.ts';
+import type { AutonomousAdoptionPolicy } from './autonomous-adoption-policy.ts';
 
 export type SpawnDestinationKind = 'subsidiary' | 'discord' | 'slack';
 
@@ -69,6 +70,7 @@ export interface ProjectWorkspace {
   readonly deploy: DeploySettings;
   /** Whether the game's debug screen may post here. Effective only while Cc reports conflux_flow = true. */
   readonly debugIntake: boolean;
+  readonly autonomousAdoption?: AutonomousAdoptionPolicy;
   readonly flowObservation: FlowObservation;
   readonly createdAt: string;
   readonly updatedAt: string;

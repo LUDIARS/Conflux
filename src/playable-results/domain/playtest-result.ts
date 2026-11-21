@@ -8,4 +8,6 @@ export interface PlaytestResult {
   readonly origin: 'human' | 'ai' | 'system';
   readonly summary: string;
   readonly observedAt: string;
+  readonly outcome?: 'passed' | 'failed';
+  readonly criticalBug?: boolean;
 }
